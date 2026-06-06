@@ -35,5 +35,54 @@ void main() {
       expect(modified.label, '-20');
       expect(modified.value, -20);
     });
+
+    test('toJson saves soundId', () {
+      final button = QuickScoreButton(
+        id: 'qs_1',
+        label: 'Test',
+        value: 10,
+        soundId: 'sound_01',
+      );
+      final json = button.toJson();
+      expect(json['soundId'], 'sound_01');
+    });
+
+    test('fromJson restores soundId', () {
+      final json = {
+        'id': 'qs_1',
+        'label': 'Test',
+        'value': 10,
+        'soundId': 'sound_02',
+      };
+      final restored = QuickScoreButton.fromJson(json);
+      expect(restored.soundId, 'sound_02');
+    });
+
+    test('fromJson uses none when soundId absent', () {
+      final json = {
+        'id': 'qs_1',
+        'label': 'Test',
+        'value': 10,
+      };
+      final restored = QuickScoreButton.fromJson(json);
+      expect(restored.soundId, 'none');
+    });
+
+    test('copyWith modifies soundId', () {
+      final button = QuickScoreButton(
+        id: 'qs_1',
+        label: 'Test',
+        value: 10,
+        soundId: 'none',
+      );
+      final modified = button.copyWith(soundId: 'sound_01');
+      expect(modified.soundId, 'sound_01');
+      expect(modified.id, 'qs_1');
+    });
+
+    test('default soundId is none', () {
+      final button = QuickScoreButton(id: 'qs_1', label: 'Test', value: 10);
+      expect(button.soundId, 'none');
+    });
   });
 }

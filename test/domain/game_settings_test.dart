@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:orchom/domain/entities/game_config.dart';
 import 'package:orchom/domain/entities/game_settings.dart';
 import 'package:orchom/domain/entities/quick_score_button.dart';
+import 'package:orchom/domain/enums/app_theme_mode.dart';
 import 'package:orchom/domain/enums/starter_mode.dart';
 
 void main() {
@@ -31,6 +32,11 @@ void main() {
       expect(settings.defaultStarterMode, StarterMode.rotation);
     });
 
+    test('defaultSettings has appThemeMode = dark', () {
+      final settings = GameSettings.defaultSettings();
+      expect(settings.appThemeMode, AppThemeMode.dark);
+    });
+
     test('toJson and fromJson roundtrip preserves all fields', () {
       final settings = GameSettings.defaultSettings();
       final json = settings.toJson();
@@ -41,6 +47,27 @@ void main() {
       expect(restored.quickScoreButtons[3].label, '+Ghalta');
       expect(restored.defaultGhaltaPenalty, 50);
       expect(restored.defaultStarterMode, StarterMode.rotation);
+      expect(restored.appThemeMode, AppThemeMode.dark);
+    });
+
+    test('toJson and fromJson roundtrip preserves appThemeMode light', () {
+      final settings = GameSettings.defaultSettings().copyWith(
+        appThemeMode: AppThemeMode.light,
+      );
+      final json = settings.toJson();
+      final restored = GameSettings.fromJson(json);
+
+      expect(restored.appThemeMode, AppThemeMode.light);
+    });
+
+    test('toJson and fromJson roundtrip preserves appThemeMode system', () {
+      final settings = GameSettings.defaultSettings().copyWith(
+        appThemeMode: AppThemeMode.system,
+      );
+      final json = settings.toJson();
+      final restored = GameSettings.fromJson(json);
+
+      expect(restored.appThemeMode, AppThemeMode.system);
     });
 
     test('fromJson compat without defaultGhaltaPenalty uses 50', () {
@@ -81,6 +108,33 @@ void main() {
       expect(restored.defaultStarterMode, StarterMode.rotation);
     });
 
+    test('fromJson uses dark when appThemeMode absent', () {
+      final json = {
+        'quickScoreButtons': [
+          {'id': 'qs_1', 'label': 'Test', 'value': 10},
+        ],
+        'defaultGhaltaPenalty': 50,
+        'defaultStarterMode': 'rotation',
+      };
+
+      final restored = GameSettings.fromJson(json);
+      expect(restored.appThemeMode, AppThemeMode.dark);
+    });
+
+    test('fromJson restores appThemeMode correctly when present', () {
+      final json = {
+        'quickScoreButtons': [
+          {'id': 'qs_1', 'label': 'Test', 'value': 10},
+        ],
+        'defaultGhaltaPenalty': 50,
+        'defaultStarterMode': 'rotation',
+        'appThemeMode': 'light',
+      };
+
+      final restored = GameSettings.fromJson(json);
+      expect(restored.appThemeMode, AppThemeMode.light);
+    });
+
     test('copyWith replaces quickScoreButtons', () {
       final settings = GameSettings.defaultSettings();
       final custom = settings.copyWith(
@@ -105,6 +159,40 @@ void main() {
       final custom = settings.copyWith(defaultStarterMode: StarterMode.random);
       expect(custom.defaultStarterMode, StarterMode.random);
       expect(custom.defaultGhaltaPenalty, 50);
+    });
+
+    test('copyWith replaces appThemeMode', () {
+      final settings = GameSettings.defaultSettings();
+      final custom = settings.copyWith(appThemeMode: AppThemeMode.light);
+      expect(custom.appThemeMode, AppThemeMode.light);
+      expect(custom.defaultGhaltaPenalty, 50);
+    });
+
+    test('copyWith keeps appThemeMode when not specified', () {
+      final settings = GameSettings.defaultSettings().copyWith(
+        appThemeMode: AppThemeMode.light,
+      );
+      final custom = settings.copyWith();
+      expect(custom.appThemeMode, AppThemeMode.light);
+    });
+
+    test('toJson and fromJson preserves quick buttons with soundId', () {
+      final buttons = [
+        QuickScoreButton(
+          id: 'qs_1',
+          label: 'Test',
+          value: 10,
+          soundId: 'sound_01',
+        ),
+      ];
+      final settings = GameSettings.defaultSettings().copyWith(
+        quickScoreButtons: buttons,
+      );
+      final json = settings.toJson();
+      final restored = GameSettings.fromJson(json);
+
+      expect(restored.quickScoreButtons, hasLength(1));
+      expect(restored.quickScoreButtons[0].soundId, 'sound_01');
     });
   });
 

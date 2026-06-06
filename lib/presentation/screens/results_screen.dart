@@ -4,8 +4,11 @@ import 'package:image_picker/image_picker.dart';
 import '../../application/game_controller.dart';
 import '../../application/game_settings_controller.dart';
 import '../../data/local/media_storage.dart';
-import '../../domain/entities/player.dart';
-import 'home_screen.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
+import '../widgets/player_score_card.dart';
+import '../widgets/round_history_card.dart';
 
 class ResultsScreen extends StatefulWidget {
   final GameController controller;
@@ -66,7 +69,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de l\'enregistrement de la photo: $e')),
+        SnackBar(
+            content:
+                Text('Erreur lors de l\'enregistrement de la photo: $e')),
       );
     }
   }
@@ -86,15 +91,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
       );
       await widget.controller.finishCurrentGame();
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) => HomeScreen(
-            controller: widget.controller,
-            settingsController: widget.settingsController,
-          ),
-        ),
-        (route) => false,
-      );
+      widget.controller.loadActiveSession();
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -119,127 +117,230 @@ class _ResultsScreenState extends State<ResultsScreen> {
     final loser = widget.controller.getLoser();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Résultats'),
-      ),
+      appBar: AppBar(title: const Text('Résultats')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Gagnant: ${winner?.name ?? '-'}',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Perdant: ${loser?.name ?? '-'}',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Scores finaux:',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            ...session.players.map((p) => Text('${p.name}: ${p.score}')),
-            const SizedBox(height: 16),
-            Text(
-              'Historique complet des manches:',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            ...session.rounds.map((round) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 8),
+            if (winner != null)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withValues(alpha: 0.1),
+                      AppColors.primary.withValues(alpha: 0.03),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: AppColors.primary.withValues(alpha: 0.2),
+                  ),
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Manche ${round.roundNumber}:'),
-                    ...round.scoresByPlayerId.entries.map((entry) {
-                      final player = session.players.firstWhere(
-                        (p) => p.id == entry.key,
-                        orElse: () => Player(id: entry.key, name: '?'),
-                      );
-                      return Text('  ${player.name}: ${entry.value}');
-                    }),
+                    Icon(
+                      Icons.emoji_events,
+                      size: 48,
+                      color: AppColors.secondary,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Gagnant',
+                      style: AppTextStyles.labelMd.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      winner.name,
+                      style: AppTextStyles.scoreDisplay.copyWith(
+                        fontSize: 36,
+                        height: 36 / 36,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                    Text(
+                      'Score: ${winner.score}',
+                      style: AppTextStyles.bodyMd.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ],
                 ),
+              ),
+            if (loser != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: AppColors.error.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.error.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.arrow_downward,
+                        size: 20, color: AppColors.error),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(
+                      'Perdant: ${loser.name} (${loser.score})',
+                      style: AppTextStyles.bodyMd.copyWith(
+                        color: AppColors.error,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Scores finaux',
+              style: AppTextStyles.headlineMd.copyWith(
+                fontSize: 20,
+                height: 28 / 20,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            ...session.players.map((p) {
+              final isWinner = p.id == winner?.id;
+              final isLoser = p.id == loser?.id;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child:
+                    PlayerScoreCard(player: p, isWinner: isWinner, isLoser: isLoser),
               );
             }),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              'Historique des manches',
+              style: AppTextStyles.headlineMd.copyWith(
+                fontSize: 20,
+                height: 28 / 20,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            ...session.rounds.map(
+              (round) =>
+                  RoundHistoryCard(round: round, players: session.players),
+            ),
+            const SizedBox(height: AppSpacing.lg),
             const Divider(),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               'Commentaire et photos',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: AppTextStyles.headlineMd.copyWith(
+                fontSize: 20,
+                height: 28 / 20,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             TextField(
               controller: _commentController,
               decoration: const InputDecoration(
                 labelText: 'Commentaire final',
-                border: OutlineInputBorder(),
                 hintText: 'Ajouter un commentaire...',
               ),
               maxLines: 3,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: OutlinedButton.icon(
                     onPressed: _takePhoto,
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text('Prendre une photo'),
+                    icon: const Icon(Icons.camera_alt, size: 20),
+                    label: const Text('Photo'),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: FilledButton.icon(
                     onPressed: _choosePhoto,
-                    icon: const Icon(Icons.photo_library),
-                    label: const Text('Choisir une photo'),
+                    icon: const Icon(Icons.photo_library, size: 20),
+                    label: const Text('Galerie'),
                   ),
                 ),
               ],
             ),
             if (_photoPaths.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              ..._photoPaths.asMap().entries.map((entry) {
-                final index = entry.key;
-                final path = entry.value;
-                return Card(
-                  child: ListTile(
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: Image.file(
-                        File(path),
-                        width: 48,
-                        height: 48,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) =>
-                            const Icon(Icons.broken_image),
-                      ),
-                    ),
-                    title: Text(
-                      path.split('\\').last.split('/').last,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _deletePhoto(index),
-                    ),
-                  ),
-                );
-              }),
+              const SizedBox(height: AppSpacing.sm),
+              SizedBox(
+                height: 88,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _photoPaths.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
+                  itemBuilder: (context, index) {
+                    final path = _photoPaths[index];
+                    return Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(path),
+                            width: 88,
+                            height: 88,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, _, _) => Container(
+                              width: 88,
+                              height: 88,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.broken_image),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: () => _deletePhoto(index),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              padding: const EdgeInsets.all(4),
+                              child: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
             ],
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.lg),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: FilledButton.icon(
                 onPressed: _finishAndGoHome,
-                child: const Text('Terminer et enregistrer dans historique'),
+                icon: const Icon(Icons.save),
+                label:
+                    const Text('Terminer et enregistrer dans historique'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 56),
+                ),
               ),
             ),
+            const SizedBox(height: AppSpacing.md),
           ],
         ),
       ),

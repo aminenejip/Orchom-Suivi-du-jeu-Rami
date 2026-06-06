@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import '../domain/entities/game_settings.dart';
+import '../domain/entities/quick_button_sound_option.dart';
 import '../domain/entities/quick_score_button.dart';
+import '../domain/enums/app_theme_mode.dart';
 import '../domain/enums/starter_mode.dart';
 import '../domain/repositories/game_settings_repository.dart';
 
@@ -93,6 +95,7 @@ class GameSettingsController extends ChangeNotifier {
       quickScoreButtons: [..._settings.quickScoreButtons, button],
       defaultGhaltaPenalty: _settings.defaultGhaltaPenalty,
       defaultStarterMode: _settings.defaultStarterMode,
+      appThemeMode: _settings.appThemeMode,
     );
     await saveSettings(updated);
   }
@@ -104,6 +107,38 @@ class GameSettingsController extends ChangeNotifier {
       }).toList(),
       defaultGhaltaPenalty: _settings.defaultGhaltaPenalty,
       defaultStarterMode: _settings.defaultStarterMode,
+      appThemeMode: _settings.appThemeMode,
+    );
+    await saveSettings(updated);
+  }
+
+  Future<void> updateQuickButtonSound({
+    required String buttonId,
+    required String soundId,
+  }) async {
+    final sound = QuickButtonSoundOption.findById(soundId);
+    if (sound == null) {
+      final error = 'Son "$soundId" invalide';
+      _setError(error);
+      throw ArgumentError(error);
+    }
+
+    final index = _settings.quickScoreButtons.indexWhere((b) => b.id == buttonId);
+    if (index == -1) {
+      final error = 'Bouton "$buttonId" introuvable';
+      _setError(error);
+      throw ArgumentError(error);
+    }
+
+    final updatedButtons = _settings.quickScoreButtons.map((b) {
+      return b.id == buttonId ? b.copyWith(soundId: soundId) : b;
+    }).toList();
+
+    final updated = GameSettings(
+      quickScoreButtons: updatedButtons,
+      defaultGhaltaPenalty: _settings.defaultGhaltaPenalty,
+      defaultStarterMode: _settings.defaultStarterMode,
+      appThemeMode: _settings.appThemeMode,
     );
     await saveSettings(updated);
   }
@@ -115,20 +150,7 @@ class GameSettingsController extends ChangeNotifier {
           .toList(),
       defaultGhaltaPenalty: _settings.defaultGhaltaPenalty,
       defaultStarterMode: _settings.defaultStarterMode,
-    );
-    await saveSettings(updated);
-  }
-
-  Future<void> updateDefaultGhaltaPenalty(int value) async {
-    if (value <= 0) {
-      final error = 'La pénalité doit être supérieure à 0';
-      _setError(error);
-      throw ArgumentError(error);
-    }
-    final updated = GameSettings(
-      quickScoreButtons: _settings.quickScoreButtons,
-      defaultGhaltaPenalty: value,
-      defaultStarterMode: _settings.defaultStarterMode,
+      appThemeMode: _settings.appThemeMode,
     );
     await saveSettings(updated);
   }
@@ -138,6 +160,17 @@ class GameSettingsController extends ChangeNotifier {
       quickScoreButtons: _settings.quickScoreButtons,
       defaultGhaltaPenalty: _settings.defaultGhaltaPenalty,
       defaultStarterMode: mode,
+      appThemeMode: _settings.appThemeMode,
+    );
+    await saveSettings(updated);
+  }
+
+  Future<void> updateAppThemeMode(AppThemeMode mode) async {
+    final updated = GameSettings(
+      quickScoreButtons: _settings.quickScoreButtons,
+      defaultGhaltaPenalty: _settings.defaultGhaltaPenalty,
+      defaultStarterMode: _settings.defaultStarterMode,
+      appThemeMode: mode,
     );
     await saveSettings(updated);
   }

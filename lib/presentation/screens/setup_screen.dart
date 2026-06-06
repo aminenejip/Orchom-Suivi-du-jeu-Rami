@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import '../../application/game_controller.dart';
 import '../../application/game_settings_controller.dart';
+import '../../data/local/quick_button_audio_service.dart';
 import '../../domain/entities/game_config.dart';
 import '../../domain/entities/game_session.dart';
 import '../../domain/entities/player.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
+import '../widgets/orchom_text_field.dart';
 import 'game_screen.dart';
 
 class SetupScreen extends StatefulWidget {
   final GameController controller;
   final GameSettingsController settingsController;
+  final QuickButtonAudioService audioService;
 
   const SetupScreen({
     required this.controller,
     required this.settingsController,
+    required this.audioService,
     super.key,
   });
 
@@ -48,8 +54,7 @@ class _SetupScreenState extends State<SetupScreen> {
     }
   }
 
-  void _onPlayerCountChanged(int? value) {
-    if (value == null) return;
+  void _onPlayerCountChanged(int value) {
     setState(() {
       _playerCount = value;
       _initNameControllers();
@@ -74,10 +79,7 @@ class _SetupScreenState extends State<SetupScreen> {
     final players = <Player>[];
     for (int i = 0; i < _playerCount; i++) {
       final name = _nameControllers[i].text.trim();
-      players.add(Player(
-        id: 'player_${i}_$id',
-        name: name,
-      ));
+      players.add(Player(id: 'player_${i}_$id', name: name));
     }
 
     final session = GameSession(
@@ -99,6 +101,7 @@ class _SetupScreenState extends State<SetupScreen> {
           builder: (_) => GameScreen(
             controller: widget.controller,
             settingsController: widget.settingsController,
+            audioService: widget.audioService,
           ),
         ),
       );
@@ -115,36 +118,35 @@ class _SetupScreenState extends State<SetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nouvelle partie'),
-      ),
+      appBar: AppBar(title: const Text('Nouvelle partie')),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Nombre de joueurs'),
-              const SizedBox(height: 8),
+              Text(
+                'Nombre de joueurs',
+                style: AppTextStyles.subtitle(context),
+              ),
+              const SizedBox(height: AppSpacing.sm),
               SegmentedButton<int>(
                 segments: const [
-                  ButtonSegment(value: 2, label: Text('2')),
-                  ButtonSegment(value: 4, label: Text('4')),
+                  ButtonSegment(value: 2, label: Text('2 joueurs')),
+                  ButtonSegment(value: 4, label: Text('4 joueurs')),
                 ],
                 selected: {_playerCount},
-                onSelectionChanged: (value) => _onPlayerCountChanged(value.first),
+                onSelectionChanged: (value) =>
+                    _onPlayerCountChanged(value.first),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               ...List.generate(_playerCount, (i) {
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: TextFormField(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: OrchomTextField(
                     controller: _nameControllers[i],
-                    decoration: InputDecoration(
-                      labelText: 'Joueur ${i + 1}',
-                      border: const OutlineInputBorder(),
-                    ),
+                    label: 'Joueur ${i + 1}',
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'Nom requis';
@@ -154,13 +156,10 @@ class _SetupScreenState extends State<SetupScreen> {
                   ),
                 );
               }),
-              const SizedBox(height: 16),
-              TextFormField(
+              const SizedBox(height: AppSpacing.md),
+              OrchomTextField(
                 controller: _targetScoreController,
-                decoration: const InputDecoration(
-                  labelText: 'Score cible',
-                  border: OutlineInputBorder(),
-                ),
+                label: 'Score cible',
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   final n = int.tryParse(value ?? '');
@@ -170,12 +169,13 @@ class _SetupScreenState extends State<SetupScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.xl),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: FilledButton.icon(
                   onPressed: _startGame,
-                  child: const Text('Lancer la partie'),
+                  icon: const Icon(Icons.play_arrow),
+                  label: const Text('Lancer la partie'),
                 ),
               ),
             ],

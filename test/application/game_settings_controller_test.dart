@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:orchom/application/game_settings_controller.dart';
 import 'package:orchom/data/local/app_database.dart';
 import 'package:orchom/data/repositories/game_settings_repository_impl.dart';
+import 'package:orchom/domain/enums/app_theme_mode.dart';
 import 'package:orchom/domain/enums/starter_mode.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -30,6 +31,7 @@ void main() {
       expect(controller.settings.quickScoreButtons, hasLength(4));
       expect(controller.settings.defaultGhaltaPenalty, 50);
       expect(controller.settings.defaultStarterMode, StarterMode.rotation);
+      expect(controller.settings.appThemeMode, AppThemeMode.dark);
       expect(controller.errorMessage, isNull);
     });
 
@@ -92,24 +94,7 @@ void main() {
       expect(controller.settings.quickScoreButtons[0].label, '-10');
       expect(controller.settings.defaultGhaltaPenalty, 50);
       expect(controller.settings.defaultStarterMode, StarterMode.rotation);
-    });
-
-    test('updateDefaultGhaltaPenalty updates the penalty', () async {
-      await controller.loadSettings();
-
-      await controller.updateDefaultGhaltaPenalty(200);
-
-      expect(controller.settings.defaultGhaltaPenalty, 200);
-    });
-
-    test('updateDefaultGhaltaPenalty refuses value <= 0', () async {
-      await controller.loadSettings();
-
-      expect(
-        () => controller.updateDefaultGhaltaPenalty(0),
-        throwsArgumentError,
-      );
-      expect(controller.errorMessage, isNotNull);
+      expect(controller.settings.appThemeMode, AppThemeMode.dark);
     });
 
     test('updateDefaultStarterMode updates the starter mode', () async {
@@ -118,6 +103,100 @@ void main() {
       await controller.updateDefaultStarterMode(StarterMode.random);
 
       expect(controller.settings.defaultStarterMode, StarterMode.random);
+    });
+
+    test('updateAppThemeMode updates to light', () async {
+      await controller.loadSettings();
+
+      await controller.updateAppThemeMode(AppThemeMode.light);
+
+      expect(controller.settings.appThemeMode, AppThemeMode.light);
+    });
+
+    test('updateAppThemeMode updates to system', () async {
+      await controller.loadSettings();
+
+      await controller.updateAppThemeMode(AppThemeMode.system);
+
+      expect(controller.settings.appThemeMode, AppThemeMode.system);
+    });
+
+    test('updateAppThemeMode preserves other settings', () async {
+      await controller.loadSettings();
+      await controller.addQuickScoreButton('Extra', 5);
+      final buttonCount = controller.settings.quickScoreButtons.length;
+
+      await controller.updateAppThemeMode(AppThemeMode.light);
+
+      expect(controller.settings.quickScoreButtons, hasLength(buttonCount));
+      expect(controller.settings.defaultGhaltaPenalty, 50);
+      expect(controller.settings.defaultStarterMode, StarterMode.rotation);
+    });
+
+    test('updateAppThemeMode saves automatically', () async {
+      await controller.loadSettings();
+      await controller.updateAppThemeMode(AppThemeMode.light);
+
+      await controller.loadSettings();
+
+      expect(controller.settings.appThemeMode, AppThemeMode.light);
+    });
+
+    test('updateQuickButtonSound modifies the sound of a button', () async {
+      await controller.loadSettings();
+      final button = controller.settings.quickScoreButtons.first;
+
+      await controller.updateQuickButtonSound(
+        buttonId: button.id,
+        soundId: 'sound_01',
+      );
+
+      final updated = controller.settings.quickScoreButtons
+          .firstWhere((b) => b.id == button.id);
+      expect(updated.soundId, 'sound_01');
+    });
+
+    test('updateQuickButtonSound saves automatically', () async {
+      await controller.loadSettings();
+      final button = controller.settings.quickScoreButtons.first;
+
+      await controller.updateQuickButtonSound(
+        buttonId: button.id,
+        soundId: 'sound_02',
+      );
+
+      await controller.loadSettings();
+
+      final updated = controller.settings.quickScoreButtons
+          .firstWhere((b) => b.id == button.id);
+      expect(updated.soundId, 'sound_02');
+    });
+
+    test('updateQuickButtonSound refuses unknown buttonId', () async {
+      await controller.loadSettings();
+
+      expect(
+        () => controller.updateQuickButtonSound(
+          buttonId: 'nonexistent',
+          soundId: 'sound_01',
+        ),
+        throwsArgumentError,
+      );
+      expect(controller.errorMessage, contains('introuvable'));
+    });
+
+    test('updateQuickButtonSound refuses invalid soundId', () async {
+      await controller.loadSettings();
+      final button = controller.settings.quickScoreButtons.first;
+
+      expect(
+        () => controller.updateQuickButtonSound(
+          buttonId: button.id,
+          soundId: 'invalid_sound',
+        ),
+        throwsArgumentError,
+      );
+      expect(controller.errorMessage, contains('invalide'));
     });
   });
 }

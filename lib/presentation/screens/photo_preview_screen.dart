@@ -9,7 +9,10 @@ class PhotoPreviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
         title: Text(
           imagePath.split('\\').last.split('/').last,
           overflow: TextOverflow.ellipsis,

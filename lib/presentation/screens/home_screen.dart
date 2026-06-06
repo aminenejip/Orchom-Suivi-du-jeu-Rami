@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../application/game_controller.dart';
 import '../../application/game_settings_controller.dart';
+import '../../application/theme_controller.dart';
+import '../../data/local/quick_button_audio_service.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_text_styles.dart';
+import '../widgets/orchom_button.dart';
 import 'setup_screen.dart';
 import 'game_screen.dart';
 import 'history_screen.dart';
@@ -9,10 +15,14 @@ import 'game_settings_screen.dart';
 class HomeScreen extends StatefulWidget {
   final GameController controller;
   final GameSettingsController settingsController;
+  final ThemeController themeController;
+  final QuickButtonAudioService audioService;
 
   const HomeScreen({
     required this.controller,
     required this.settingsController,
+    required this.themeController,
+    required this.audioService,
     super.key,
   });
 
@@ -60,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => SetupScreen(
           controller: widget.controller,
           settingsController: widget.settingsController,
+          audioService: widget.audioService,
         ),
       ),
     );
@@ -73,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => GameScreen(
           controller: widget.controller,
           settingsController: widget.settingsController,
+          audioService: widget.audioService,
         ),
       ),
     );
@@ -93,8 +105,10 @@ class _HomeScreenState extends State<HomeScreen> {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) =>
-            GameSettingsScreen(settingsController: widget.settingsController),
+        builder: (_) => GameSettingsScreen(
+          settingsController: widget.settingsController,
+          audioService: widget.audioService,
+        ),
       ),
     );
   }
@@ -102,34 +116,81 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Orchom'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: _navigateToSetup,
-              child: const Text('Nouvelle partie'),
-            ),
-            const SizedBox(height: 16),
-            if (_hasActiveSession)
-              ElevatedButton(
-                onPressed: _navigateToGame,
-                child: const Text('Reprendre partie'),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: Column(
+            children: [
+              const SizedBox(height: AppSpacing.xl * 2),
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppSpacing.lg),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppSpacing.lg),
+                  child: Image.asset(
+                    'assets/images/orchom_logo.png',
+                    width: 96,
+                    height: 96,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Icon(
+                      Icons.style,
+                      size: 48,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
               ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _navigateToHistory,
-              child: const Text('Historique'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _navigateToSettings,
-              child: const Text('Réglage des parties'),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Orchom',
+                style: AppTextStyles.scoreDisplay.copyWith(
+                  fontSize: 40,
+                  height: 40 / 40,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Carnet de score Rami Tunisien',
+                style: AppTextStyles.bodyMd.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const Spacer(flex: 2),
+              OrchomButton(
+                label: 'Nouvelle partie',
+                icon: Icons.add_circle_outline,
+                onPressed: _navigateToSetup,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              if (_hasActiveSession)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: OrchomButton(
+                    label: 'Reprendre partie',
+                    icon: Icons.play_circle_outline,
+                    onPressed: _navigateToGame,
+                  ),
+                ),
+              OrchomButton(
+                label: 'Historique',
+                icon: Icons.history,
+                onPressed: _navigateToHistory,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              OrchomButton(
+                label: 'Réglage',
+                icon: Icons.tune,
+                onPressed: _navigateToSettings,
+              ),
+           
+              const SizedBox(height: AppSpacing.lg),
+            ],
+          ),
         ),
       ),
     );

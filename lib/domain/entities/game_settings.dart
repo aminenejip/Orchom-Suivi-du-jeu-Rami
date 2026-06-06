@@ -1,3 +1,4 @@
+import '../enums/app_theme_mode.dart';
 import '../enums/starter_mode.dart';
 import 'quick_score_button.dart';
 
@@ -5,29 +6,34 @@ class GameSettings {
   final List<QuickScoreButton> quickScoreButtons;
   final int defaultGhaltaPenalty;
   final StarterMode defaultStarterMode;
+  final AppThemeMode appThemeMode;
 
   const GameSettings({
     required this.quickScoreButtons,
     this.defaultGhaltaPenalty = 50,
     this.defaultStarterMode = StarterMode.rotation,
+    this.appThemeMode = AppThemeMode.dark,
   });
 
   factory GameSettings.defaultSettings() => const GameSettings(
         quickScoreButtons: QuickScoreButton.defaultButtons,
         defaultGhaltaPenalty: 50,
         defaultStarterMode: StarterMode.rotation,
+        appThemeMode: AppThemeMode.dark,
       );
 
   GameSettings copyWith({
     List<QuickScoreButton>? quickScoreButtons,
     int? defaultGhaltaPenalty,
     StarterMode? defaultStarterMode,
+    AppThemeMode? appThemeMode,
   }) =>
       GameSettings(
         quickScoreButtons: quickScoreButtons ?? this.quickScoreButtons,
         defaultGhaltaPenalty:
             defaultGhaltaPenalty ?? this.defaultGhaltaPenalty,
         defaultStarterMode: defaultStarterMode ?? this.defaultStarterMode,
+        appThemeMode: appThemeMode ?? this.appThemeMode,
       );
 
   Map<String, dynamic> toJson() => {
@@ -35,6 +41,7 @@ class GameSettings {
             quickScoreButtons.map((b) => b.toJson()).toList(),
         'defaultGhaltaPenalty': defaultGhaltaPenalty,
         'defaultStarterMode': defaultStarterMode.toJson(),
+        'appThemeMode': appThemeMode.toJson(),
       };
 
   factory GameSettings.fromJson(Map<String, dynamic> json) => GameSettings(
@@ -47,5 +54,8 @@ class GameSettings {
         defaultStarterMode: json['defaultStarterMode'] != null
             ? StarterMode.fromJson(json['defaultStarterMode'] as String)
             : StarterMode.rotation,
+        appThemeMode: json['appThemeMode'] != null
+            ? AppThemeMode.fromJson(json['appThemeMode'] as String)
+            : AppThemeMode.dark,
       );
 }
