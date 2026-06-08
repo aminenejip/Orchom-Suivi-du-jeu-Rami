@@ -129,6 +129,45 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  Future<void> _showEditNameDialog(String playerId, String currentName) async {
+    final controller = TextEditingController(text: currentName);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Modifier le nom'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'Nom du joueur',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: const Text('Enregistrer'),
+          ),
+        ],
+      ),
+    );
+    if (result != null && result.trim().isNotEmpty && result.trim() != currentName) {
+      try {
+        await widget.controller.updatePlayerName(playerId, result);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(widget.controller.errorMessage ?? e.toString()),
+          ),
+        );
+      }
+    }
+  }
+
   void _setQuickScore(String playerId, int buttonValue, String soundId) {
     final currentText = _scoreControllers[playerId]?.text ?? '';
     final currentValue = int.tryParse(currentText) ?? 0;
@@ -240,8 +279,30 @@ class _GameScreenState extends State<GameScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(p.name,
-                          style: AppTextStyles.bodyMd),
+                      child: GestureDetector(
+                        onTap: isFinished
+                            ? null
+                            : () => _showEditNameDialog(p.id, p.name),
+                        child: Row(
+                          children: [
+                            Flexible(
+                              child: Text(p.name,
+                                  style: AppTextStyles.bodyMd,
+                                  overflow: TextOverflow.ellipsis),
+                            ),
+                            if (!isFinished) ...[
+                              const SizedBox(width: 4),
+                              Icon(
+                                Icons.edit,
+                                size: 14,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                     ),
                     Text(
                       '${p.score}',
@@ -267,10 +328,33 @@ class _GameScreenState extends State<GameScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            player.name,
-                            style: AppTextStyles.bodyMd.copyWith(
-                              fontWeight: FontWeight.w600,
+                          child: GestureDetector(
+                            onTap: isFinished
+                                ? null
+                                : () => _showEditNameDialog(
+                                    player.id, player.name),
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    player.name,
+                                    style: AppTextStyles.bodyMd.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (!isFinished) ...[
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.edit,
+                                    size: 14,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ),

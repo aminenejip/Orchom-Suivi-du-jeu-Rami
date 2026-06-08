@@ -69,6 +69,52 @@ class GameController extends ChangeNotifier {
     return repository.hasActiveSession();
   }
 
+  Future<void> updatePlayerName(String playerId, String newName) async {
+    if (_currentSession == null) {
+      final error = 'No active session';
+      _setError(error);
+      throw StateError(error);
+    }
+
+    final trimmedName = newName.trim();
+    if (trimmedName.isEmpty) {
+      final error = 'Le nom ne peut pas être vide';
+      _setError(error);
+      throw ArgumentError(error);
+    }
+
+    final isDuplicate = _currentSession!.players.any(
+      (p) =>
+          p.id != playerId &&
+          p.name.trim().toLowerCase() == trimmedName.toLowerCase(),
+    );
+    if (isDuplicate) {
+      final error = 'Un autre joueur a déjà ce nom';
+      _setError(error);
+      throw ArgumentError(error);
+    }
+
+    _setLoading(true);
+    try {
+      final updatedPlayers = _currentSession!.players.map((p) {
+        if (p.id == playerId) {
+          return p.copyWith(name: trimmedName);
+        }
+        return p;
+      }).toList();
+
+      final updated = _currentSession!.copyWith(players: updatedPlayers);
+      _currentSession = updated;
+      await repository.saveActiveSession(updated);
+      _setError(null);
+    } catch (e) {
+      _setError(e.toString());
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<void> startNewGame(GameSession session) async {
     _setLoading(true);
     try {

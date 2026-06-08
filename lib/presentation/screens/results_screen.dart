@@ -1,6 +1,9 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../../application/game_controller.dart';
 import '../../application/game_settings_controller.dart';
 import '../../data/local/media_storage.dart';
@@ -29,6 +32,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
   final _picker = ImagePicker();
   final _mediaStorage = MediaStorage();
   final List<String> _photoPaths = [];
+  final List<Uint8List> _photoBytes = [];
 
   @override
   void initState() {
@@ -48,30 +52,224 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Future<void> _takePhoto() async {
-    final xFile = await _picker.pickImage(source: ImageSource.camera);
-    if (xFile == null) return;
-    await _savePhoto(xFile.path);
-  }
-
-  Future<void> _choosePhoto() async {
-    final xFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (xFile == null) return;
-    await _savePhoto(xFile.path);
-  }
-
-  Future<void> _savePhoto(String sourcePath) async {
+    final granted = await _requestCameraPermission();
+    if (!granted) return;
     try {
-      final savedPath = await _mediaStorage.saveImageFile(sourcePath);
-      if (!mounted) return;
-      setState(() {
-        _photoPaths.add(savedPath);
-      });
+      final xFile = await _picker.pickImage(source: ImageSource.camera);
+      if (xFile == null) return;
+      await _savePhoto(xFile);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        SnackBar(content: Text('Erreur appareil photo: $e')),
+      );
+    }
+  }
+
+  Future<void> _choosePhoto() async {
+    debugPrint('[DIAG] _choosePhoto CALLED');
+    final granted = await _requestGalleryPermission();
+    debugPrint('[DIAG] Permission granted: $granted');
+    if (!granted) return;
+    try {
+      final xFile = await _picker.pickImage(source: ImageSource.gallery);
+      debugPrint('[DIAG] Picked file is null: ${xFile == null}');
+      debugPrint('[DIAG] Picked file path: ${xFile?.path}');
+      debugPrint('[DIAG] Picked file name: ${xFile?.name}');
+      if (xFile == null) return;
+      await _savePhoto(xFile);
+    } catch (e) {
+      debugPrint('[DIAG] _choosePhoto exception: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur galerie: $e')),
+      );
+    }
+  }
+
+  Future<bool> _requestGalleryPermission() async {
+    var status = await Permission.photos.request();
+    if (status.isDenied) {
+      status = await Permission.storage.request();
+    }
+    if (status.isGranted) return true;
+
+    if (status.isPermanentlyDenied) {
+      if (!mounted) return false;
+      final open = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Autorisation requise'),
+          content: const Text(
+            'L\'application a besoin d\'accéder à vos photos. '
+            'Ouvrez les paramètres pour autoriser.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Fermer'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Paramètres'),
+            ),
+          ],
+        ),
+      );
+      if (open == true) {
+        await openAppSettings();
+      }
+      return false;
+    }
+
+    if (!mounted) return false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Autorisation d\'accès aux photos refusée'),
+      ),
+    );
+    return false;
+  }
+
+  Future<bool> _requestCameraPermission() async {
+    final status = await Permission.camera.request();
+    if (status.isGranted) return true;
+
+    if (status.isPermanentlyDenied) {
+      if (!mounted) return false;
+      final open = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Autorisation requise'),
+          content: const Text(
+            'L\'application a besoin d\'accéder à la caméra. '
+            'Ouvrez les paramètres pour autoriser.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Fermer'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Paramètres'),
+            ),
+          ],
+        ),
+      );
+      if (open == true) {
+        await openAppSettings();
+      }
+      return false;
+    }
+
+    if (!mounted) return false;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Autorisation d\'accès à la caméra refusée'),
+      ),
+    );
+    return false;
+  }
+
+  Future<void> _savePhoto(XFile xFile) async {
+    try {
+      debugPrint('[DIAG] _savePhoto CALLED');
+      debugPrint('[DIAG] XFile path: ${xFile.path}');
+      debugPrint('[DIAG] XFile name: ${xFile.name}');
+
+      final rawBytes = await xFile.readAsBytes();
+      debugPrint('[DIAG] Raw bytes length: ${rawBytes.length}');
+
+      // Magic bytes diagnostic
+      final hexBytes = rawBytes
+          .take(16)
+          .map((b) => b.toRadixString(16).padLeft(2, '0'))
+          .join(' ');
+      debugPrint('[DIAG] Magic bytes (first 16): $hexBytes');
+
+      // Detect format from magic bytes
+      String detectedFormat = 'Unknown';
+      if (rawBytes.length >= 3 &&
+          rawBytes[0] == 0xFF &&
+          rawBytes[1] == 0xD8 &&
+          rawBytes[2] == 0xFF) {
+        detectedFormat = 'JPEG';
+      } else if (rawBytes.length >= 8 &&
+          rawBytes[0] == 0x89 &&
+          rawBytes[1] == 0x50 &&
+          rawBytes[2] == 0x4E &&
+          rawBytes[3] == 0x47) {
+        detectedFormat = 'PNG';
+      } else if (rawBytes.length >= 12 &&
+          rawBytes[0] == 0x52 &&
+          rawBytes[1] == 0x49 &&
+          rawBytes[2] == 0x46 &&
+          rawBytes[3] == 0x46) {
+        final webpSignature = String.fromCharCodes(rawBytes.skip(8).take(4));
+        detectedFormat = 'WEBP ($webpSignature)';
+      } else if (rawBytes.length >= 12) {
+        final ftyp = String.fromCharCodes(rawBytes.skip(4).take(12));
+        if (ftyp.startsWith('ftyp')) {
+          detectedFormat = 'HEIC/HEIF/AVIF ($ftyp)';
+        }
+      }
+      debugPrint('[DIAG] Detected format: $detectedFormat');
+
+      // Save (and convert to JPEG internally)
+      final savedPath = await _mediaStorage.saveImageFile(xFile);
+      debugPrint('[DIAG] Saved path: $savedPath');
+
+      final savedFile = File(savedPath);
+      final exists = await savedFile.exists();
+      final length = await savedFile.length();
+      debugPrint('[DIAG] Saved file exists: $exists');
+      debugPrint('[DIAG] Saved file length: $length');
+
+      final bytes = await savedFile.readAsBytes();
+      debugPrint('[DIAG] Saved bytes length: ${bytes.length}');
+
+      // Verify the saved file decodes correctly before adding to state
+      try {
+        final codec = await ui.instantiateImageCodec(bytes);
+        debugPrint('[DIAG] Flutter codec OK: ${codec.frameCount} frames');
+        codec.dispose();
+      } catch (decodeError) {
+        debugPrint('[DIAG] Saved bytes also fail to decode: $decodeError');
+        debugPrint('[DIAG] image path: ${xFile.path}');
+        debugPrint('[DIAG] image name: ${xFile.name}');
+        debugPrint('[DIAG] extension: ${xFile.name.split('.').last}');
+        debugPrint('[DIAG] magic bytes: $hexBytes');
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
             content:
-                Text('Erreur lors de l\'enregistrement de la photo: $e')),
+                Text('Cette image n\'est pas compatible. Choisis une autre image.'),
+          ),
+        );
+        return;
+      }
+
+      debugPrint('[DIAG] _photoPaths length before setState: ${_photoPaths.length}');
+      debugPrint('[DIAG] _photoBytes length before setState: ${_photoBytes.length}');
+      debugPrint('[DIAG] mounted: $mounted');
+
+      if (!mounted) return;
+      setState(() {
+        _photoPaths.add(savedPath);
+        _photoBytes.add(bytes);
+      });
+
+      debugPrint('[DIAG] _photoPaths length after setState: ${_photoPaths.length}');
+      debugPrint('[DIAG] _photoBytes length after setState: ${_photoBytes.length}');
+    } catch (e) {
+      debugPrint('[DIAG] _savePhoto error: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content:
+              Text('Cette image n\'est pas compatible. Choisis une autre image.'),
+        ),
       );
     }
   }
@@ -79,6 +277,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
   Future<void> _deletePhoto(int index) async {
     setState(() {
       _photoPaths.removeAt(index);
+      _photoBytes.removeAt(index);
     });
   }
 
@@ -91,7 +290,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
       );
       await widget.controller.finishCurrentGame();
       if (!mounted) return;
-      widget.controller.loadActiveSession();
       Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
       if (!mounted) return;
@@ -279,27 +477,35 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   itemCount: _photoPaths.length,
                   separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
                   itemBuilder: (context, index) {
-                    final path = _photoPaths[index];
+                    debugPrint('[DIAG] Rendering image index: $index');
+                    debugPrint('[DIAG] _photoPaths length: ${_photoPaths.length}, _photoBytes length: ${_photoBytes.length}');
+                    final bytes = index < _photoBytes.length ? _photoBytes[index] : null;
+                    debugPrint('[DIAG] Bytes is null: ${bytes == null}');
+                    if (bytes != null) debugPrint('[DIAG] Bytes length: ${bytes.length}');
+                    if (bytes == null) return const SizedBox.shrink();
                     return Stack(
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: Image.file(
-                            File(path),
+                          child: Image.memory(
+                            bytes,
                             width: 88,
                             height: 88,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, _, _) => Container(
-                              width: 88,
-                              height: 88,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(Icons.broken_image),
-                            ),
+                            errorBuilder: (_, error, stackTrace) {
+                              debugPrint('[DIAG] Image.memory error: $error');
+                              return Container(
+                                width: 88,
+                                height: 88,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.broken_image),
+                              );
+                            },
                           ),
                         ),
                         Positioned(
