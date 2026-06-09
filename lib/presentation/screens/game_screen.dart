@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import '../../application/game_controller.dart';
 import '../../application/game_settings_controller.dart';
 import '../../data/local/quick_button_audio_service.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/theme.dart';
+import '../widgets/widgets.dart';
 import '../widgets/quick_score_button_widget.dart';
 import '../widgets/round_history_card.dart';
 import 'results_screen.dart';
@@ -73,8 +72,10 @@ class _GameScreenState extends State<GameScreen> {
       final text = _scoreControllers[player.id]?.text ?? '';
       final parsed = int.tryParse(text);
       if (parsed == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Score invalide pour ${player.name}')),
+        OrchomToast.show(
+          context: context,
+          message: 'Score invalide pour ${player.name}',
+          type: ToastType.error,
         );
         return;
       }
@@ -94,10 +95,10 @@ class _GameScreenState extends State<GameScreen> {
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.controller.errorMessage ?? e.toString()),
-        ),
+      OrchomToast.show(
+        context: context,
+        message: widget.controller.errorMessage ?? e.toString(),
+        type: ToastType.error,
       );
     }
   }
@@ -109,10 +110,10 @@ class _GameScreenState extends State<GameScreen> {
       _initScoreControllers();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.controller.errorMessage ?? e.toString()),
-        ),
+      OrchomToast.show(
+        context: context,
+        message: widget.controller.errorMessage ?? e.toString(),
+        type: ToastType.error,
       );
     }
   }
@@ -129,45 +130,6 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Future<void> _showEditNameDialog(String playerId, String currentName) async {
-    final controller = TextEditingController(text: currentName);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Modifier le nom'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Nom du joueur',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, controller.text),
-            child: const Text('Enregistrer'),
-          ),
-        ],
-      ),
-    );
-    if (result != null && result.trim().isNotEmpty && result.trim() != currentName) {
-      try {
-        await widget.controller.updatePlayerName(playerId, result);
-      } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(widget.controller.errorMessage ?? e.toString()),
-          ),
-        );
-      }
-    }
-  }
-
   void _setQuickScore(String playerId, int buttonValue, String soundId) {
     final currentText = _scoreControllers[playerId]?.text ?? '';
     final currentValue = int.tryParse(currentText) ?? 0;
@@ -181,274 +143,354 @@ class _GameScreenState extends State<GameScreen> {
     final session = widget.controller.currentSession;
     if (session == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Partie')),
-        body: const Center(child: Text('Aucune partie active')),
+        appBar: OrchomAppBar(title: 'Partie'),
+        body: const OrchomEmptyState(
+          icon: Icons.style_rounded,
+          title: 'Aucune partie active',
+        ),
       );
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isFinished = session.isFinished;
     final starter = widget.controller.getCurrentStarter();
     final ranking = widget.controller.getRanking();
     final quickButtons = session.config.quickScoreButtons;
     final reversedRounds = session.rounds.reversed.toList();
     final targetScore = session.config.targetScore;
+    final roundLabel = isFinished
+        ? 'Partie terminée'
+        : 'Manche ${session.currentRound}';
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Manche ${session.currentRound}'),
+      appBar: OrchomAppBar(
+        title: roundLabel,
+        actions: [
+          OrchomBadge(
+            label: 'Cible: $targetScore',
+            variant: BadgeVariant.gold,
+          ),
+          const SizedBox(width: AppSpacing.md),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDark
+                ? [AppColors.darkBg, AppColors.darkSurface]
+                : [AppColors.lightBg, AppColors.lightSurfaceContainer],
+          ),
+        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildStarterBanner(starter, isDark),
+              const SizedBox(height: AppSpacing.md),
+              _buildRankingSection(ranking, targetScore, isDark),
+              const SizedBox(height: AppSpacing.lg),
+              _buildScoreInputSection(session, quickButtons, isFinished, isDark),
+              const SizedBox(height: AppSpacing.md),
+              _buildActionButtons(isFinished, session, isDark),
+              if (reversedRounds.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.lg),
+                _buildHistorySection(reversedRounds, session, isDark),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStarterBanner(dynamic starter, bool isDark) {
+    return OrchomCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: (isDark ? AppColors.primaryDark : AppColors.primary)
+                  .withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.person_rounded,
+              size: 18,
+              color: isDark ? AppColors.primaryDark : AppColors.primary,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            'Donneur: ${starter?.name ?? '-'}',
+            style: AppTextStyles.body.copyWith(
+              fontWeight: FontWeight.w600,
+              color: isDark ? AppColors.darkText : AppColors.lightText,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRankingSection(
+      List<dynamic> ranking, int targetScore, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        OrchomSectionTitle(title: 'Classement'),
+        const SizedBox(height: AppSpacing.sm),
+        ...ranking.asMap().entries.map((entry) {
+          final index = entry.key;
+          final p = entry.value;
+          final isPlayerWinner = p.score >= targetScore;
+          final scoreColor = isPlayerWinner
+              ? AppColors.scoreDanger
+              : p.score >= targetScore * 0.8
+                  ? AppColors.scoreWarning
+                  : null;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: OrchomCard(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
+                horizontal: AppSpacing.sm,
                 vertical: AppSpacing.sm,
               ),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
-              ),
+              color: scoreColor?.withValues(alpha: 0.06),
               child: Row(
                 children: [
-                  const Icon(Icons.person, size: 20, color: AppColors.primary),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    'Donneur: ${starter?.name ?? '-'}',
-                    style: AppTextStyles.bodyMd.copyWith(
-                      fontWeight: FontWeight.w600,
+                  SizedBox(
+                    width: 24,
+                    child: Text(
+                      '#${index + 1}',
+                      style: AppTextStyles.label.copyWith(
+                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(9999),
-                    ),
+                  OrchomAvatar(
+                    initials: p.name.isNotEmpty ? p.name[0] : '?',
+                    size: 36,
+                    winner: isPlayerWinner,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
                     child: Text(
-                      'Cible: $targetScore',
-                      style: AppTextStyles.labelMd.copyWith(
-                        fontSize: 12,
-                        color: AppColors.primary,
+                      p.name,
+                      style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (isPlayerWinner)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Icon(
+                        Icons.emoji_events_rounded,
+                        size: 18,
+                        color: AppColors.scoreGold,
+                      ),
+                    ),
+                  Text(
+                    '${p.score}',
+                    style: AppTextStyles.scoreDisplaySm.copyWith(
+                      fontSize: 28,
+                      color: scoreColor ??
+                          (isDark ? AppColors.primaryDark : AppColors.primary),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              'Classement',
-              style: AppTextStyles.headlineMd.copyWith(
-                fontSize: 20,
-                height: 28 / 20,
-              ),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            ...ranking.map((p) {
-              final isPlayerWinner = p.score >= targetScore;
-              final scoreColor = isPlayerWinner
-                  ? AppColors.error
-                  : p.score >= targetScore * 0.8
-                      ? AppColors.secondary
-                      : null;
-              return Container(
-                margin: const EdgeInsets.only(bottom: AppSpacing.xs),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: scoreColor?.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: scoreColor != null
-                      ? Border.all(color: scoreColor.withValues(alpha: 0.25))
-                      : Border.all(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .outlineVariant
-                              .withValues(alpha: 0.3),
-                        ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: isFinished
-                            ? null
-                            : () => _showEditNameDialog(p.id, p.name),
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(p.name,
-                                  style: AppTextStyles.bodyMd,
-                                  overflow: TextOverflow.ellipsis),
-                            ),
-                            if (!isFinished) ...[
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.edit,
-                                size: 14,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                              ),
-                            ],
-                          ],
-                        ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildScoreInputSection(
+      dynamic session, List<dynamic> quickButtons, bool isFinished, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        OrchomSectionTitle(
+          title: 'Saisie des scores',
+          subtitle: isFinished ? 'Partie terminée' : 'Entre le score de chaque joueur',
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        ...session.players.map((player) {
+          final ctrl = _scoreControllers[player.id] ?? TextEditingController();
+          return Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: OrchomCard(
+              padding: const EdgeInsets.all(AppSpacing.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      OrchomAvatar(
+                        initials: player.name.isNotEmpty ? player.name[0] : '?',
+                        size: 32,
                       ),
-                    ),
-                    Text(
-                      '${p.score}',
-                      style: AppTextStyles.scoreDisplay.copyWith(
-                        fontSize: 28,
-                        height: 28 / 28,
-                        color: scoreColor ?? AppColors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }),
-            const SizedBox(height: AppSpacing.lg),
-            ...session.players.map((player) {
-              final ctrl = _scoreControllers[player.id] ??
-                  TextEditingController();
-              return Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: isFinished
-                                ? null
-                                : () => _showEditNameDialog(
-                                    player.id, player.name),
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    player.name,
-                                    style: AppTextStyles.bodyMd.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                if (!isFinished) ...[
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    Icons.edit,
-                                    size: 14,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                                ],
-                              ],
-                            ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          player.name,
+                          style: AppTextStyles.body.copyWith(
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Text(
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: (isDark ? AppColors.primaryDark : AppColors.primary)
+                              .withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
                           'Score: ${player.score}',
-                          style: AppTextStyles.bodyMd.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          style: AppTextStyles.label.copyWith(
+                            fontSize: 13,
+                            color: isDark ? AppColors.primaryDark : AppColors.primary,
                           ),
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 80,
-                          child: TextField(
-                            controller: ctrl,
-                            keyboardType: TextInputType.number,
-                            readOnly: isFinished,
-                            decoration: const InputDecoration(
-                              hintText: 'Score',
-                              isDense: true,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 12,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 80,
+                        child: TextField(
+                          controller: ctrl,
+                          keyboardType: TextInputType.number,
+                          readOnly: isFinished,
+                          style: AppTextStyles.scoreDisplaySm.copyWith(
+                            fontSize: 24,
+                            height: 28 / 24,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: '0',
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusSm,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.sm),
-                        if (!isFinished)
-                          Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: quickButtons.map((btn) {
-                                  return Padding(
-                                    padding:
-                                        const EdgeInsets.only(right: 6),
-                                    child: QuickScoreButtonWidget(
-                                      button: btn,
-                                      onPressed: () => _setQuickScore(
-                                          player.id, btn.value, btn.soundId),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      if (!isFinished)
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: quickButtons.map((btn) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: QuickScoreButtonWidget(
+                                    button: btn,
+                                    onPressed: () => _setQuickScore(
+                                      player.id,
+                                      btn.value,
+                                      btn.soundId,
                                     ),
-                                  );
-                                }).toList(),
-                              ),
+                                  ),
+                                );
+                              }).toList(),
                             ),
                           ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }),
-            const SizedBox(height: AppSpacing.md),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: isFinished ? _navigateToResults : _validateRound,
-                icon: Icon(isFinished ? Icons.visibility : Icons.check_circle),
-                label: Text(
-                    isFinished ? 'Voir les résultats' : 'Valider la manche'),
+                        ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            if (!isFinished && session.rounds.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.sm),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _undoLastRound,
-                    icon: const Icon(Icons.undo, size: 18),
-                    label: const Text('Annuler dernière manche'),
-                  ),
-                ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildActionButtons(bool isFinished, dynamic session, bool isDark) {
+    return Column(
+      children: [
+        OrchomButton(
+          label: isFinished ? 'Voir les résultats' : 'Valider la manche',
+          icon: isFinished ? Icons.visibility_rounded : Icons.check_circle_rounded,
+          onPressed: isFinished ? _navigateToResults : _validateRound,
+          height: 56,
+        ),
+        if (!isFinished && session.rounds.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.sm),
+            child: OrchomButton(
+              label: 'Annuler dernière manche',
+              icon: Icons.undo_rounded,
+              variant: ButtonVariant.outline,
+              onPressed: _undoLastRound,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildHistorySection(
+      List<dynamic> reversedRounds, dynamic session, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            OrchomSectionTitle(
+              title: 'Historique',
+              subtitle: '${session.rounds.length} manche(s)',
+            ),
+            const Spacer(),
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: (isDark ? AppColors.primaryDark : AppColors.primary)
+                    .withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(8),
               ),
-            if (reversedRounds.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                'Historique des manches (${session.rounds.length})',
-                style: AppTextStyles.headlineMd.copyWith(
-                  fontSize: 20,
-                  height: 28 / 20,
-                ),
+              child: Icon(
+                Icons.timeline_rounded,
+                size: 18,
+                color: isDark ? AppColors.primaryDark : AppColors.primary,
               ),
-              const SizedBox(height: AppSpacing.sm),
-              ...reversedRounds.map(
-                  (round) => RoundHistoryCard(round: round, players: session.players)),
-            ],
+            ),
           ],
         ),
-      ),
+        const SizedBox(height: AppSpacing.sm),
+        ...reversedRounds.map(
+          (round) => RoundHistoryCard(
+            round: round,
+            players: session.players,
+          ),
+        ),
+      ],
     );
   }
 }

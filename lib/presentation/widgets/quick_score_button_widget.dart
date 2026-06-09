@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/quick_score_button.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/theme.dart';
 
 class QuickScoreButtonWidget extends StatelessWidget {
   final QuickScoreButton button;
@@ -23,18 +22,37 @@ class QuickScoreButtonWidget extends StatelessWidget {
 
     return Material(
       color: bgColor,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
       child: InkWell(
         onTap: onPressed,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        splashColor: fgColor.withValues(alpha: 0.1),
+        highlightColor: fgColor.withValues(alpha: 0.05),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Text(
-            button.label,
-            style: AppTextStyles.labelMd.copyWith(
-              color: fgColor,
-              fontSize: 13,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+            border: Border.all(
+              color: fgColor.withValues(alpha: 0.15),
             ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                button.label,
+                style: AppTextStyles.label.copyWith(
+                  color: fgColor,
+                  fontSize: 13,
+                ),
+              ),
+              Text(
+                button.value > 0 ? '+${button.value}' : '${button.value}',
+                style: AppTextStyles.labelSm.copyWith(
+                  color: fgColor.withValues(alpha: 0.7),
+                ),
+              ),
+            ],
           ),
         ),
       ),

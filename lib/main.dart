@@ -97,7 +97,11 @@ class _AppWithDependenciesState extends State<_AppWithDependencies> {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: const Scaffold(
-          body: Center(child: CircularProgressIndicator()),
+          body: Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+            ),
+          ),
         ),
       );
     }

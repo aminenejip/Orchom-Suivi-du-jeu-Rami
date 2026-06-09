@@ -8,15 +8,23 @@ class PhotoPreviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fileName = imagePath.split('\\').last.split('/').last;
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: Text(
-          imagePath.split('\\').last.split('/').last,
+          fileName,
           overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
         ),
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
       body: Center(
         child: File(imagePath).existsSync()
@@ -26,11 +34,28 @@ class PhotoPreviewScreen extends StatelessWidget {
                 child: Image.file(
                   File(imagePath),
                   fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) =>
-                      const Text('Impossible d\'afficher l\'image'),
+                  errorBuilder: (_, _, _) => const Icon(
+                    Icons.broken_image_rounded,
+                    size: 64,
+                    color: Colors.white38,
+                  ),
                 ),
               )
-            : const Text('Fichier introuvable'),
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.image_not_supported_rounded,
+                    size: 64,
+                    color: Colors.white38,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Fichier introuvable',
+                    style: TextStyle(color: Colors.white54, fontSize: 16),
+                  ),
+                ],
+              ),
       ),
     );
   }

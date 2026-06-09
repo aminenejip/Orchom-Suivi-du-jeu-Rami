@@ -1,22 +1,39 @@
 import 'package:flutter/material.dart';
-import '../theme/app_text_styles.dart';
+import '../theme/theme.dart';
 
 class OrchomSectionTitle extends StatelessWidget {
   final String title;
+  final String? subtitle;
 
-  const OrchomSectionTitle({required this.title, super.key});
+  const OrchomSectionTitle({
+    required this.title,
+    this.subtitle,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        title,
-        style: AppTextStyles.headlineMd.copyWith(
-          fontSize: 20,
-          height: 28 / 20,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTextStyles.displaySm.copyWith(
+            color: isDark ? AppColors.darkText : AppColors.lightText,
+          ),
         ),
-      ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 2),
+          Text(
+            subtitle!,
+            style: AppTextStyles.bodySm.copyWith(
+              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+            ),
+          ),
+        ],
+      ],
     );
   }
 }

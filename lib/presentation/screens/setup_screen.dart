@@ -5,9 +5,8 @@ import '../../data/local/quick_button_audio_service.dart';
 import '../../domain/entities/game_config.dart';
 import '../../domain/entities/game_session.dart';
 import '../../domain/entities/player.dart';
-import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
-import '../widgets/orchom_text_field.dart';
+import '../theme/theme.dart';
+import '../widgets/widgets.dart';
 import 'game_screen.dart';
 
 class SetupScreen extends StatefulWidget {
@@ -107,78 +106,155 @@ class _SetupScreenState extends State<SetupScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.controller.errorMessage ?? e.toString()),
-        ),
+      OrchomToast.show(
+        context: context,
+        message: widget.controller.errorMessage ?? e.toString(),
+        type: ToastType.error,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Nouvelle partie')),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Nombre de joueurs',
-                style: AppTextStyles.subtitle(context),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              SegmentedButton<int>(
-                segments: const [
-                  ButtonSegment(value: 2, label: Text('2 joueurs')),
-                  ButtonSegment(value: 4, label: Text('4 joueurs')),
-                ],
-                selected: {_playerCount},
-                onSelectionChanged: (value) =>
-                    _onPlayerCountChanged(value.first),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              ...List.generate(_playerCount, (i) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: OrchomTextField(
-                    controller: _nameControllers[i],
-                    label: 'Joueur ${i + 1}',
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Nom requis';
-                      }
-                      return null;
-                    },
+      appBar: OrchomAppBar(title: 'Nouvelle partie'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: isDark
+                ? [AppColors.darkBg, AppColors.darkSurface]
+                : [AppColors.lightBg, AppColors.lightSurfaceContainer],
+          ),
+        ),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                OrchomCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OrchomSectionTitle(
+                        title: 'Nombre de joueurs',
+                        subtitle: 'Choisis entre 2 ou 4 joueurs',
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      SegmentedButton<int>(
+                        segments: const [
+                          ButtonSegment(
+                            value: 2,
+                            label: Text('2 Joueurs'),
+                            icon: Icon(Icons.people_rounded),
+                          ),
+                          ButtonSegment(
+                            value: 4,
+                            label: Text('4 Joueurs'),
+                            icon: Icon(Icons.groups_rounded),
+                          ),
+                        ],
+                        selected: {_playerCount},
+                        onSelectionChanged: (value) =>
+                            _onPlayerCountChanged(value.first),
+                        style: SegmentedButton.styleFrom(
+                          selectedBackgroundColor: isDark
+                              ? AppColors.primaryDark.withValues(alpha: 0.2)
+                              : AppColors.primary.withValues(alpha: 0.15),
+                          selectedForegroundColor: isDark
+                              ? AppColors.primaryDark
+                              : AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                );
-              }),
-              const SizedBox(height: AppSpacing.md),
-              OrchomTextField(
-                controller: _targetScoreController,
-                label: 'Score cible',
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  final n = int.tryParse(value ?? '');
-                  if (n == null || n < 1 || n > 10000) {
-                    return 'Entre 1 et 10000';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: _startGame,
-                  icon: const Icon(Icons.play_arrow),
-                  label: const Text('Lancer la partie'),
                 ),
-              ),
-            ],
+                const SizedBox(height: AppSpacing.md),
+                OrchomCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OrchomSectionTitle(
+                        title: 'Noms des joueurs',
+                        subtitle: 'Donne un nom à chaque participant',
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      ...List.generate(_playerCount, (i) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                          child: OrchomTextField(
+                            controller: _nameControllers[i],
+                            label: 'Joueur ${i + 1}',
+                            hint: 'Entrer le nom du joueur ${i + 1}',
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.next,
+                            prefixIcon: Icon(
+                              Icons.person_rounded,
+                              size: 20,
+                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Nom requis';
+                              }
+                              return null;
+                            },
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                OrchomCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OrchomSectionTitle(
+                        title: 'Score cible',
+                        subtitle: 'Le score à atteindre pour gagner',
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      OrchomTextField(
+                        controller: _targetScoreController,
+                        label: 'Score cible',
+                        hint: 'Entre 1 et 10000',
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.done,
+                        prefixIcon: Icon(
+                          Icons.flag_rounded,
+                          size: 20,
+                          color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                        ),
+                        validator: (value) {
+                          final n = int.tryParse(value ?? '');
+                          if (n == null || n < 1 || n > 10000) {
+                            return 'Entre 1 et 10000';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xxxl),
+                OrchomButton(
+                  label: 'Lancer la partie',
+                  icon: Icons.play_arrow_rounded,
+                  onPressed: _startGame,
+                  height: 56,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+              ],
+            ),
           ),
         ),
       ),
