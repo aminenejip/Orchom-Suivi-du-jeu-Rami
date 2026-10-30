@@ -28,26 +28,29 @@ void main() {
     test('loadSettings returns defaults initially', () async {
       await controller.loadSettings();
 
-      expect(controller.settings.quickScoreButtons, hasLength(4));
+      expect(controller.settings.quickScoreButtons, hasLength(3));
       expect(controller.settings.defaultGhaltaPenalty, 50);
       expect(controller.settings.defaultStarterMode, StarterMode.rotation);
-      expect(controller.settings.appThemeMode, AppThemeMode.dark);
+      expect(controller.settings.appThemeMode, AppThemeMode.light);
       expect(controller.errorMessage, isNull);
     });
 
-    test('addQuickScoreButton adds a button and preserves other settings', () async {
-      await controller.loadSettings();
-      final initialCount = controller.settings.quickScoreButtons.length;
+    test(
+      'addQuickScoreButton adds a button and preserves other settings',
+      () async {
+        await controller.loadSettings();
+        final initialCount = controller.settings.quickScoreButtons.length;
 
-      await controller.addQuickScoreButton('Custom', 99);
+        await controller.addQuickScoreButton('Custom', 99);
 
-      expect(controller.settings.quickScoreButtons, hasLength(initialCount + 1));
-      expect(
-        controller.settings.quickScoreButtons.last.label,
-        'Custom',
-      );
-      expect(controller.settings.defaultGhaltaPenalty, 50);
-    });
+        expect(
+          controller.settings.quickScoreButtons,
+          hasLength(initialCount + 1),
+        );
+        expect(controller.settings.quickScoreButtons.last.label, 'Custom');
+        expect(controller.settings.defaultGhaltaPenalty, 50);
+      },
+    );
 
     test('addQuickScoreButton refuses empty label', () async {
       await controller.loadSettings();
@@ -90,11 +93,11 @@ void main() {
 
       await controller.resetSettings();
 
-      expect(controller.settings.quickScoreButtons, hasLength(4));
-      expect(controller.settings.quickScoreButtons[0].label, '-10');
+      expect(controller.settings.quickScoreButtons, hasLength(3));
+      expect(controller.settings.quickScoreButtons[0].label, 'Kmalt');
       expect(controller.settings.defaultGhaltaPenalty, 50);
       expect(controller.settings.defaultStarterMode, StarterMode.rotation);
-      expect(controller.settings.appThemeMode, AppThemeMode.dark);
+      expect(controller.settings.appThemeMode, AppThemeMode.light);
     });
 
     test('updateDefaultStarterMode updates the starter mode', () async {
@@ -151,8 +154,9 @@ void main() {
         soundId: 'sound_01',
       );
 
-      final updated = controller.settings.quickScoreButtons
-          .firstWhere((b) => b.id == button.id);
+      final updated = controller.settings.quickScoreButtons.firstWhere(
+        (b) => b.id == button.id,
+      );
       expect(updated.soundId, 'sound_01');
     });
 
@@ -167,8 +171,9 @@ void main() {
 
       await controller.loadSettings();
 
-      final updated = controller.settings.quickScoreButtons
-          .firstWhere((b) => b.id == button.id);
+      final updated = controller.settings.quickScoreButtons.firstWhere(
+        (b) => b.id == button.id,
+      );
       expect(updated.soundId, 'sound_02');
     });
 

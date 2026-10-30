@@ -1,0 +1,246 @@
+{
+  "@@locale": "ar",
+  "@@last_modified": "2026-06-09",
+
+  "appTitle": "Orchom",
+
+  "homeSubtitle": "كورني السكور ديال الرامي",
+
+  "newGame": "إبدا اللعب",
+
+  "resumeGame": "واصل اللعب",
+
+  "history": "التاريخ",
+
+  "settings": "الإعدادات",
+
+  "numberOfPlayers": "عدد اللاعبين",
+
+  "numberOfPlayersSubtitle": "خيّر بين 2 ولا 4 لاعبين",
+
+  "playersCount": "{count} لاعبين",
+
+  "playerNames": "أسماء اللاعبين",
+
+  "playerNamesSubtitle": "أعطي إسم لكل لاعب",
+
+  "playerLabel": "اللاعب {number}",
+
+  "playerHint": "دخل إسم اللاعب {number}",
+
+  "nameRequired": "الإسم مطلوب",
+
+  "targetScore": "السكور المطلوب",
+
+  "targetScoreSubtitle": "السكور اللي لازم توصل باش تربح",
+
+  "targetScoreHint": "بين 1 و 10000",
+
+  "targetScoreError": "بين 1 و 10000",
+
+  "startGame": "ابدأ اللعب",
+
+  "invalidScore": "السكور متاع {name} مش صحيح",
+
+  "game": "اللعبة",
+
+  "noActiveGame": "ما فماش لعبة",
+
+  "gameOver": "وفات اللعبة",
+
+  "roundLabel": "المانش {number}",
+
+  "targetLabel": "الهدف: {score}",
+
+  "dealerLabel": "الدونور: {name}",
+
+  "ranking": "الترتيب",
+
+  "scoreEntry": "دخول السكور",
+
+  "scoreEntrySubtitle": "دخل سكور كل لاعب",
+
+  "scoreLabel": "السكور: {score}",
+
+  "scoreHint": "0",
+
+  "viewResults": "شوف النتيجة",
+
+  "validateRound": "صادق على المانش",
+
+  "undoLastRound": "الغي اخر مانش",
+
+  "roundsCount": "{count} مانش(ات)",
+
+  "cameraError": "مشكل في الكاميرا",
+
+  "galleryError": "مشكل في الكاليري",
+
+  "permissionRequired": "الإذن مطلوب",
+
+  "galleryPermissionMessage": "الآب يحتاج للوصول للفوتوات. افتح الإعدادات باش تسمح.",
+
+  "cameraPermissionMessage": "الآب يحتاج للوصول للكاميرا. افتح الإعدادات باش تسمح.",
+
+  "settingsButton": "الإعدادات",
+
+  "close": "أقفل",
+
+  "photoAccessDenied": "الوصول للفوتوات مرفوض",
+
+  "cameraAccessDenied": "الوصول للكاميرا مرفوض",
+
+  "imageNotCompatible": "هذه الصورة مش متوافقة",
+
+  "saveError": "مشكل في الحفظ",
+
+  "results": "النتيجة",
+
+  "noGame": "ما فماش لعبة",
+
+  "finishAndSave": "خلص وسجل",
+
+  "winner": "الرابح",
+
+  "winnerScore": "السكور: {score}",
+
+  "loserLabel": "الخاسر: {name} ({score})",
+
+  "finalScores": "السكور النهائي",
+
+  "roundHistory": "تاريخ المانشات",
+
+  "commentAndPhotos": "تعليق وفوتوات",
+
+  "commentAndPhotosSubtitle": "زيد تعليق ولا فوتو لهذه اللعبة",
+
+  "finalComment": "التعليق الأخير",
+
+  "commentHint": "زيد تعليق...",
+
+  "photo": "فوتو",
+
+  "gallery": "كاليري",
+
+  "delete": "احذف",
+
+  "deleteGameConfirm": "تحذف هذه اللعبة من التاريخ؟",
+
+  "gameDeleted": "اللعبة محذوفة",
+
+  "error": "مشكل",
+
+  "clearHistory": "فاضي التاريخ",
+
+  "clearHistoryMessage": "كل اللعابات يحذفو نهائيا.",
+
+  "deleteAll": "احذف الكل",
+
+  "historyCleared": "التاريخ مفروغ",
+
+  "noCompletedGames": "ما فماش لعابات مكملة",
+
+  "noCompletedGamesSubtitle": "كمل لعبة باش تشوفها هنا",
+
+  "playersCountLabel": "{count} لاعبين",
+
+  "targetScoreLabel": "الهدف: {score}",
+
+  "winnerLabel": "الرابح: {name}",
+
+  "loserLabelShort": "الخاسر: {name}",
+
+  "buttonAdded": "البوتون مضاف",
+
+  "deleteButtonConfirm": "تحذف هذا البوتون السريع؟",
+
+  "buttonDeleted": "البوتون محذوف",
+
+  "reset": "رجع للوضعية الأولى",
+
+  "resetMessage": "كل الإعدادات ترجع للوضعية الأولى.",
+
+  "settingsReset": "الإعدادات رجعت للوضعية الأولى",
+
+  "appearance": "المظهر",
+
+  "appearanceSubtitle": "غيّر مظهر التطبيق",
+
+  "gameSection": "اللعبة",
+
+  "gameSectionSubtitle": "الإعدادات الافتراضية للعبة",
+
+  "defaultDealerMode": "طريقة الدونور الافتراضية",
+
+  "quickButtons": "البوتونات السريعة",
+
+  "quickButtonsSubtitle": "غيّر بوتونات السكور السريعة",
+
+  "noButtons": "ما فماش بوتونات",
+
+  "noButtonsSubtitle": "زيد بوتونات السكور السريعة متاعك",
+
+  "buttonValue": "القيمة: {value}",
+
+  "sound": "الصوت",
+
+  "preview": "اسمع",
+
+  "noSoundSelected": "ما اخترتش صوت",
+
+  "addButton": "زيد بوتون",
+
+  "addButtonSubtitle": "أعمل بوتون سريع",
+
+  "buttonLabel": "إسم البوتون",
+
+  "buttonLabelHint": "مثال: كمّلت",
+
+  "buttonValueField": "قيمة البوتون",
+
+  "buttonValueHint": "مثال: 10- ولا 50",
+
+  "resetSettings": "رجع الإعدادات",
+
+  "rotation": "دوران",
+
+  "random": "عشوائي",
+
+  "manual": "يدوي",
+
+  "light": "فاتح",
+
+  "lightTheme": "مظهر فاتح",
+
+  "dark": "غالق",
+
+  "darkTheme": "مظهر غالق",
+
+  "system": "النظام",
+
+  "followSystem": "على حساب النظام",
+
+  "loser": "الخاسر",
+
+  "retry": "عاود",
+
+  "search": "بحث...",
+
+  "confirm": "أكد",
+
+  "cancel": "الغي",
+
+  "nameEmptyError": "الإسم ما يجيش يكون فارغ",
+
+  "nameDuplicateError": "لاعب آخر عنده هذا الإسم",
+
+  "labelEmptyError": "التسمية ما تجيش تكون فارغة",
+
+  "labelDuplicateError": "بوتون بهذه التسمية \"{label}\" موجود",
+
+  "invalidSoundError": "الصوت \"{soundId}\" مش صحيح",
+
+  "buttonNotFoundError": "البوتون \"{buttonId}\" ما لقيتوش",
+
+  "imageDecodeError": "ما قدرناش نفهمو هذه الصورة. الصيغ المدعومة: JPEG, PNG, WebP, HEIC (Android/iOS)."
+}

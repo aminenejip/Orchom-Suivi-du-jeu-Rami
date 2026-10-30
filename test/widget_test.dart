@@ -13,23 +13,29 @@ void main() {
     databaseFactory = databaseFactoryFfi;
   });
 
-  test('App controllers can be created and communicate with database', () async {
-    final database = AppDatabase();
-    final gameRepository = GameRepositoryImpl(database);
-    final engine = GameEngine();
-    final gameController =
-        GameController(engine: engine, repository: gameRepository);
-    final settingsRepository = GameSettingsRepositoryImpl(database);
-    final settingsController =
-        GameSettingsController(repository: settingsRepository);
-    await settingsController.loadSettings();
+  test(
+    'App controllers can be created and communicate with database',
+    () async {
+      final database = AppDatabase();
+      final gameRepository = GameRepositoryImpl(database);
+      final engine = GameEngine();
+      final gameController = GameController(
+        engine: engine,
+        repository: gameRepository,
+      );
+      final settingsRepository = GameSettingsRepositoryImpl(database);
+      final settingsController = GameSettingsController(
+        repository: settingsRepository,
+      );
+      await settingsController.loadSettings();
 
-    expect(gameController, isNotNull);
-    expect(settingsController, isNotNull);
-    expect(settingsController.settings.quickScoreButtons, hasLength(4));
-    expect(settingsController.settings.defaultGhaltaPenalty, 50);
-    expect(settingsController.settings.defaultStarterMode, isNotNull);
+      expect(gameController, isNotNull);
+      expect(settingsController, isNotNull);
+      expect(settingsController.settings.quickScoreButtons, hasLength(3));
+      expect(settingsController.settings.defaultGhaltaPenalty, 50);
+      expect(settingsController.settings.defaultStarterMode, isNotNull);
 
-    await database.close();
-  });
+      await database.close();
+    },
+  );
 }

@@ -12,10 +12,13 @@ class QuickScoreButton {
   });
 
   static const defaultButtons = [
-      QuickScoreButton(id: 'qs_default_minus_10', label: 'Kmalt ', value: -10),
-  QuickScoreButton(id: 'qs_default_minus_50', label: 'Frach wahdou', value: -50),
-  QuickScoreButton(id: 'qs_default_ghalta', label: 'Ghalta', value: 50),
-    
+    QuickScoreButton(id: 'qs_default_minus_10', label: 'Kmalt', value: -10),
+    QuickScoreButton(
+      id: 'qs_default_minus_50',
+      label: 'Frach wahdou',
+      value: -50,
+    ),
+    QuickScoreButton(id: 'qs_default_ghalta', label: 'Ghalta', value: 50),
   ];
 
   QuickScoreButton copyWith({
@@ -23,20 +26,19 @@ class QuickScoreButton {
     String? label,
     int? value,
     String? soundId,
-  }) =>
-      QuickScoreButton(
-        id: id ?? this.id,
-        label: label ?? this.label,
-        value: value ?? this.value,
-        soundId: soundId ?? this.soundId,
-      );
+  }) => QuickScoreButton(
+    id: id ?? this.id,
+    label: label ?? this.label,
+    value: value ?? this.value,
+    soundId: soundId ?? this.soundId,
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'label': label,
-        'value': value,
-        'soundId': soundId,
-      };
+    'id': id,
+    'label': label,
+    'value': value,
+    'soundId': soundId,
+  };
 
   factory QuickScoreButton.fromJson(Map<String, dynamic> json) =>
       QuickScoreButton(

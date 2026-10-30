@@ -12,14 +12,14 @@ class GameSettings {
     required this.quickScoreButtons,
     this.defaultGhaltaPenalty = 50,
     this.defaultStarterMode = StarterMode.rotation,
-    this.appThemeMode = AppThemeMode.dark,
+    this.appThemeMode = AppThemeMode.light,
   });
 
   factory GameSettings.defaultSettings() => const GameSettings(
         quickScoreButtons: QuickScoreButton.defaultButtons,
         defaultGhaltaPenalty: 50,
         defaultStarterMode: StarterMode.rotation,
-        appThemeMode: AppThemeMode.dark,
+        appThemeMode: AppThemeMode.light,
       );
 
   GameSettings copyWith({
@@ -56,6 +56,6 @@ class GameSettings {
             : StarterMode.rotation,
         appThemeMode: json['appThemeMode'] != null
             ? AppThemeMode.fromJson(json['appThemeMode'] as String)
-            : AppThemeMode.dark,
+            : AppThemeMode.light,
       );
 }

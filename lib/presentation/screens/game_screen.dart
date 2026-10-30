@@ -138,6 +138,62 @@ class _GameScreenState extends State<GameScreen> {
     widget.audioService.playBySoundId(soundId);
   }
 
+  Future<void> _showEditPlayerNameDialog(
+      String playerId, String currentName) async {
+    final nameController = TextEditingController(text: currentName);
+    final newName = await OrchomModal.show<String>(
+      context: context,
+      title: 'Modifier le nom',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          OrchomTextField(
+            controller: nameController,
+            label: 'Nom du joueur',
+            hint: 'Entrer un nouveau nom',
+            textCapitalization: TextCapitalization.words,
+            textInputAction: TextInputAction.done,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          OrchomButton(
+            label: 'Enregistrer',
+            onPressed: () {
+              final name = nameController.text.trim();
+              if (name.isEmpty) {
+                OrchomToast.show(
+                  context: context,
+                  message: 'Nom requis',
+                  type: ToastType.error,
+                );
+                return;
+              }
+              Navigator.pop(context, name);
+            },
+          ),
+        ],
+      ),
+    );
+    nameController.dispose();
+    if (newName == null || !mounted) return;
+
+    try {
+      await widget.controller.updatePlayerName(playerId, newName);
+      if (!mounted) return;
+      OrchomToast.show(
+        context: context,
+        message: 'Nom modifié',
+        type: ToastType.success,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      OrchomToast.show(
+        context: context,
+        message: widget.controller.errorMessage ?? e.toString(),
+        type: ToastType.error,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = widget.controller.currentSession;
@@ -345,10 +401,16 @@ class _GameScreenState extends State<GameScreen> {
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
-                        child: Text(
-                          player.name,
-                          style: AppTextStyles.body.copyWith(
-                            fontWeight: FontWeight.w600,
+                        child: GestureDetector(
+                          onTap: () => _showEditPlayerNameDialog(
+                            player.id,
+                            player.name,
+                          ),
+                          child: Text(
+                            player.name,
+                            style: AppTextStyles.body.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),

@@ -7,19 +7,17 @@ import 'package:orchom/domain/enums/starter_mode.dart';
 
 void main() {
   group('GameSettings', () {
-    test('defaultSettings contains -10, -20, -100, +Ghalta', () {
+    test('defaultSettings contains Kmalt, Frach wahdou and Ghalta', () {
       final settings = GameSettings.defaultSettings();
       final buttons = settings.quickScoreButtons;
 
-      expect(buttons, hasLength(4));
-      expect(buttons[0].label, '-10');
+      expect(buttons, hasLength(3));
+      expect(buttons[0].label, 'Kmalt');
       expect(buttons[0].value, -10);
-      expect(buttons[1].label, '-20');
-      expect(buttons[1].value, -20);
-      expect(buttons[2].label, '-100');
-      expect(buttons[2].value, -100);
-      expect(buttons[3].label, '+Ghalta');
-      expect(buttons[3].value, 50);
+      expect(buttons[1].label, 'Frach wahdou');
+      expect(buttons[1].value, -50);
+      expect(buttons[2].label, 'Ghalta');
+      expect(buttons[2].value, 50);
     });
 
     test('defaultSettings has defaultGhaltaPenalty = 50', () {
@@ -32,9 +30,9 @@ void main() {
       expect(settings.defaultStarterMode, StarterMode.rotation);
     });
 
-    test('defaultSettings has appThemeMode = dark', () {
+    test('defaultSettings has appThemeMode = light', () {
       final settings = GameSettings.defaultSettings();
-      expect(settings.appThemeMode, AppThemeMode.dark);
+      expect(settings.appThemeMode, AppThemeMode.light);
     });
 
     test('toJson and fromJson roundtrip preserves all fields', () {
@@ -42,12 +40,12 @@ void main() {
       final json = settings.toJson();
       final restored = GameSettings.fromJson(json);
 
-      expect(restored.quickScoreButtons, hasLength(4));
-      expect(restored.quickScoreButtons[0].label, '-10');
-      expect(restored.quickScoreButtons[3].label, '+Ghalta');
+      expect(restored.quickScoreButtons, hasLength(3));
+      expect(restored.quickScoreButtons[0].label, 'Kmalt');
+      expect(restored.quickScoreButtons[2].label, 'Ghalta');
       expect(restored.defaultGhaltaPenalty, 50);
       expect(restored.defaultStarterMode, StarterMode.rotation);
-      expect(restored.appThemeMode, AppThemeMode.dark);
+      expect(restored.appThemeMode, AppThemeMode.light);
     });
 
     test('toJson and fromJson roundtrip preserves appThemeMode light', () {
@@ -108,7 +106,7 @@ void main() {
       expect(restored.defaultStarterMode, StarterMode.rotation);
     });
 
-    test('fromJson uses dark when appThemeMode absent', () {
+    test('fromJson uses light when appThemeMode absent', () {
       final json = {
         'quickScoreButtons': [
           {'id': 'qs_1', 'label': 'Test', 'value': 10},
@@ -118,7 +116,7 @@ void main() {
       };
 
       final restored = GameSettings.fromJson(json);
-      expect(restored.appThemeMode, AppThemeMode.dark);
+      expect(restored.appThemeMode, AppThemeMode.light);
     });
 
     test('fromJson restores appThemeMode correctly when present', () {
@@ -226,9 +224,9 @@ void main() {
 
       final config = GameConfig.fromJson(json);
 
-      expect(config.quickScoreButtons, hasLength(4));
-      expect(config.quickScoreButtons[0].label, '-10');
-      expect(config.quickScoreButtons[3].label, '+Ghalta');
+      expect(config.quickScoreButtons, hasLength(3));
+      expect(config.quickScoreButtons[0].label, 'Kmalt');
+      expect(config.quickScoreButtons[2].label, 'Ghalta');
     });
   });
 }

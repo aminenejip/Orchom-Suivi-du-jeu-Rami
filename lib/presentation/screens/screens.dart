@@ -1,4 +1,5 @@
 export 'home_screen.dart';
+export 'loading_screen.dart';
 export 'setup_screen.dart';
 export 'game_screen.dart';
 export 'results_screen.dart';

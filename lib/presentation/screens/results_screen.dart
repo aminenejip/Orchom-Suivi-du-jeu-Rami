@@ -72,9 +72,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
     final granted = await _requestGalleryPermission();
     if (!granted) return;
     try {
-      final xFile = await _picker.pickImage(source: ImageSource.gallery);
-      if (xFile == null) return;
-      await _savePhoto(xFile);
+      final xFiles = await _picker.pickMultiImage();
+      if (xFiles.isEmpty) return;
+      for (final xFile in xFiles) {
+        await _savePhoto(xFile);
+      }
     } catch (e) {
       if (!mounted) return;
       OrchomToast.show(

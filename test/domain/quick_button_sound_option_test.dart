@@ -11,19 +11,22 @@ void main() {
       expect(none.assetPath, isNull);
     });
 
-    test('availableSounds contains at least one sound with non-null assetPath',
-        () {
-      final withSound =
-          QuickButtonSoundOption.availableSounds.where((s) => s.assetPath != null);
-      expect(withSound.isNotEmpty, isTrue);
-    });
+    test(
+      'availableSounds contains at least one sound with non-null assetPath',
+      () {
+        final withSound = QuickButtonSoundOption.availableSounds.where(
+          (s) => s.assetPath != null,
+        );
+        expect(withSound.isNotEmpty, isTrue);
+      },
+    );
 
     test('findById returns correct option', () {
       final sound = QuickButtonSoundOption.findById('sound_01');
       expect(sound, isNotNull);
       expect(sound!.id, 'sound_01');
-      expect(sound.label, 'Son 01');
-      expect(sound.assetPath, 'sounds/tunisian_meme_01_6s.mp3');
+      expect(sound.label, 'Yar7am waldin waldik');
+      expect(sound.assetPath, 'sounds/9-yar7am-waldin-waldik.mp3');
     });
 
     test('findById returns null for unknown id', () {

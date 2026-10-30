@@ -13,18 +13,16 @@ void main() {
       expect(restored.value, -10);
     });
 
-    test('defaultButtons contains the correct 4 buttons', () {
+    test('defaultButtons contains the correct buttons', () {
       final defaults = QuickScoreButton.defaultButtons;
 
-      expect(defaults, hasLength(4));
-      expect(defaults[0].label, '-10');
+      expect(defaults, hasLength(3));
+      expect(defaults[0].label, 'Kmalt');
       expect(defaults[0].value, -10);
-      expect(defaults[1].label, '-20');
-      expect(defaults[1].value, -20);
-      expect(defaults[2].label, '-100');
-      expect(defaults[2].value, -100);
-      expect(defaults[3].label, '+Ghalta');
-      expect(defaults[3].value, 50);
+      expect(defaults[1].label, 'Frach wahdou');
+      expect(defaults[1].value, -50);
+      expect(defaults[2].label, 'Ghalta');
+      expect(defaults[2].value, 50);
     });
 
     test('copyWith creates a modified copy', () {
@@ -59,11 +57,7 @@ void main() {
     });
 
     test('fromJson uses none when soundId absent', () {
-      final json = {
-        'id': 'qs_1',
-        'label': 'Test',
-        'value': 10,
-      };
+      final json = {'id': 'qs_1', 'label': 'Test', 'value': 10};
       final restored = QuickScoreButton.fromJson(json);
       expect(restored.soundId, 'none');
     });

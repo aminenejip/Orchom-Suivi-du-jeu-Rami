@@ -25,14 +25,17 @@ void main() {
   });
 
   group('GameSettingsRepository', () {
-    test('getSettings returns default settings when nothing is saved', () async {
-      final settings = await repository.getSettings();
+    test(
+      'getSettings returns default settings when nothing is saved',
+      () async {
+        final settings = await repository.getSettings();
 
-      expect(settings.quickScoreButtons, hasLength(4));
-      expect(settings.quickScoreButtons[0].label, '-10');
-      expect(settings.defaultGhaltaPenalty, 50);
-      expect(settings.defaultStarterMode, StarterMode.rotation);
-    });
+        expect(settings.quickScoreButtons, hasLength(3));
+        expect(settings.quickScoreButtons[0].label, 'Kmalt');
+        expect(settings.defaultGhaltaPenalty, 50);
+        expect(settings.defaultStarterMode, StarterMode.rotation);
+      },
+    );
 
     test('saveSettings and getSettings roundtrip', () async {
       final custom = GameSettings(
@@ -66,8 +69,8 @@ void main() {
       await repository.resetSettings();
       final restored = await repository.getSettings();
 
-      expect(restored.quickScoreButtons, hasLength(4));
-      expect(restored.quickScoreButtons[0].label, '-10');
+      expect(restored.quickScoreButtons, hasLength(3));
+      expect(restored.quickScoreButtons[0].label, 'Kmalt');
       expect(restored.defaultGhaltaPenalty, 50);
       expect(restored.defaultStarterMode, StarterMode.rotation);
     });

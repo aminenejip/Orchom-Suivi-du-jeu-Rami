@@ -1,0 +1,707 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2026-06-09",
+
+  "appTitle": "Orchom",
+  "@appTitle": {
+    "description": "Application title"
+  },
+
+  "homeSubtitle": "Rami Tunisien Score Book",
+  "@homeSubtitle": {
+    "description": "Subtitle on home screen"
+  },
+
+  "newGame": "New Game",
+  "@newGame": {
+    "description": "Button to start a new game"
+  },
+
+  "resumeGame": "Resume Game",
+  "@resumeGame": {
+    "description": "Button to resume an active game"
+  },
+
+  "history": "History",
+  "@history": {
+    "description": "Button/section label for history"
+  },
+
+  "settings": "Settings",
+  "@settings": {
+    "description": "Button/section label for settings"
+  },
+
+  "numberOfPlayers": "Number of Players",
+  "@numberOfPlayers": {
+    "description": "Section title for player count selection"
+  },
+
+  "numberOfPlayersSubtitle": "Choose between 2 or 4 players",
+  "@numberOfPlayersSubtitle": {
+    "description": "Subtitle for player count selection"
+  },
+
+  "playersCount": "{count} Players",
+  "@playersCount": {
+    "description": "Player count option",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "playerNames": "Player Names",
+  "@playerNames": {
+    "description": "Section title for entering player names"
+  },
+
+  "playerNamesSubtitle": "Give a name to each player",
+  "@playerNamesSubtitle": {
+    "description": "Subtitle for player names"
+  },
+
+  "playerLabel": "Player {number}",
+  "@playerLabel": {
+    "description": "Label for player text field",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+
+  "playerHint": "Enter player {number} name",
+  "@playerHint": {
+    "description": "Hint for player name input",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+
+  "nameRequired": "Name required",
+  "@nameRequired": {
+    "description": "Validation error for empty name"
+  },
+
+  "targetScore": "Target Score",
+  "@targetScore": {
+    "description": "Section and field label for target score"
+  },
+
+  "targetScoreSubtitle": "The score to reach to win",
+  "@targetScoreSubtitle": {
+    "description": "Subtitle for target score"
+  },
+
+  "targetScoreHint": "Between 1 and 10000",
+  "@targetScoreHint": {
+    "description": "Hint for target score input"
+  },
+
+  "targetScoreError": "Between 1 and 10000",
+  "@targetScoreError": {
+    "description": "Validation error for target score"
+  },
+
+  "startGame": "Start Game",
+  "@startGame": {
+    "description": "Button to start the game"
+  },
+
+  "invalidScore": "Invalid score for {name}",
+  "@invalidScore": {
+    "description": "Error message for invalid player score",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "game": "Game",
+  "@game": {
+    "description": "Generic game label"
+  },
+
+  "noActiveGame": "No active game",
+  "@noActiveGame": {
+    "description": "Empty state when no game is active"
+  },
+
+  "gameOver": "Game Over",
+  "@gameOver": {
+    "description": "Label when game is finished"
+  },
+
+  "roundLabel": "Round {number}",
+  "@roundLabel": {
+    "description": "Round number label",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+
+  "targetLabel": "Target: {score}",
+  "@targetLabel": {
+    "description": "Target score badge",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+
+  "dealerLabel": "Dealer: {name}",
+  "@dealerLabel": {
+    "description": "Current dealer/ starter label",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "ranking": "Ranking",
+  "@ranking": {
+    "description": "Section title for player ranking"
+  },
+
+  "scoreEntry": "Score Entry",
+  "@scoreEntry": {
+    "description": "Section title for score input"
+  },
+
+  "scoreEntrySubtitle": "Enter each player score",
+  "@scoreEntrySubtitle": {
+    "description": "Subtitle for score input"
+  },
+
+  "scoreLabel": "Score: {score}",
+  "@scoreLabel": {
+    "description": "Player current score label",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+
+  "scoreHint": "0",
+  "@scoreHint": {
+    "description": "Hint text for score input field"
+  },
+
+  "viewResults": "View Results",
+  "@viewResults": {
+    "description": "Button to view game results"
+  },
+
+  "validateRound": "Validate Round",
+  "@validateRound": {
+    "description": "Button to submit current round scores"
+  },
+
+  "undoLastRound": "Undo Last Round",
+  "@undoLastRound": {
+    "description": "Button to undo the last round"
+  },
+
+  "roundsCount": "{count} round(s)",
+  "@roundsCount": {
+    "description": "Number of rounds played",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "cameraError": "Camera error",
+  "@cameraError": {
+    "description": "Error message when camera fails"
+  },
+
+  "galleryError": "Gallery error",
+  "@galleryError": {
+    "description": "Error message when gallery fails"
+  },
+
+  "permissionRequired": "Permission required",
+  "@permissionRequired": {
+    "description": "Dialog title for permission request"
+  },
+
+  "galleryPermissionMessage": "App needs access to your photos. Open settings to allow.",
+  "@galleryPermissionMessage": {
+    "description": "Message for gallery permission dialog"
+  },
+
+  "cameraPermissionMessage": "App needs access to the camera. Open settings to allow.",
+  "@cameraPermissionMessage": {
+    "description": "Message for camera permission dialog"
+  },
+
+  "settingsButton": "Settings",
+  "@settingsButton": {
+    "description": "Button to open system settings"
+  },
+
+  "close": "Close",
+  "@close": {
+    "description": "Button to close dialog"
+  },
+
+  "photoAccessDenied": "Photo access denied",
+  "@photoAccessDenied": {
+    "description": "Warning when photo permission denied"
+  },
+
+  "cameraAccessDenied": "Camera access denied",
+  "@cameraAccessDenied": {
+    "description": "Warning when camera permission denied"
+  },
+
+  "imageNotCompatible": "This image is not compatible",
+  "@imageNotCompatible": {
+    "description": "Error when image format is not supported"
+  },
+
+  "saveError": "Error saving",
+  "@saveError": {
+    "description": "Generic error message when saving fails"
+  },
+
+  "results": "Results",
+  "@results": {
+    "description": "AppBar title for results screen"
+  },
+
+  "noGame": "No game",
+  "@noGame": {
+    "description": "Empty state when no game data"
+  },
+
+  "finishAndSave": "Finish & Save",
+  "@finishAndSave": {
+    "description": "Button to finish game and save"
+  },
+
+  "winner": "Winner",
+  "@winner": {
+    "description": "Label for the winner"
+  },
+
+  "winnerScore": "Score: {score}",
+  "@winnerScore": {
+    "description": "Winner score display",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+
+  "loserLabel": "Loser: {name} ({score})",
+  "@loserLabel": {
+    "description": "Loser information",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+
+  "finalScores": "Final Scores",
+  "@finalScores": {
+    "description": "Section title for final scores"
+  },
+
+  "roundHistory": "Round History",
+  "@roundHistory": {
+    "description": "Section title for round history"
+  },
+
+  "commentAndPhotos": "Comment & Photos",
+  "@commentAndPhotos": {
+    "description": "Section title for comment and photos"
+  },
+
+  "commentAndPhotosSubtitle": "Add a comment or photo for this game",
+  "@commentAndPhotosSubtitle": {
+    "description": "Subtitle for comment and photos section"
+  },
+
+  "finalComment": "Final Comment",
+  "@finalComment": {
+    "description": "TextField label for final comment"
+  },
+
+  "commentHint": "Add a comment...",
+  "@commentHint": {
+    "description": "Hint for comment text field"
+  },
+
+  "photo": "Photo",
+  "@photo": {
+    "description": "Button to take a photo"
+  },
+
+  "gallery": "Gallery",
+  "@gallery": {
+    "description": "Button to choose from gallery"
+  },
+
+  "delete": "Delete",
+  "@delete": {
+    "description": "Button/dialog title for delete action"
+  },
+
+  "deleteGameConfirm": "Delete this game from history?",
+  "@deleteGameConfirm": {
+    "description": "Confirmation message for deleting a game"
+  },
+
+  "gameDeleted": "Game deleted",
+  "@gameDeleted": {
+    "description": "Success message after deleting game"
+  },
+
+  "error": "Error",
+  "@error": {
+    "description": "Generic error label"
+  },
+
+  "clearHistory": "Clear history",
+  "@clearHistory": {
+    "description": "Dialog title for clearing all history"
+  },
+
+  "clearHistoryMessage": "All games will be permanently deleted.",
+  "@clearHistoryMessage": {
+    "description": "Warning message for clearing history"
+  },
+
+  "deleteAll": "Delete all",
+  "@deleteAll": {
+    "description": "Button to confirm deleting all"
+  },
+
+  "historyCleared": "History cleared",
+  "@historyCleared": {
+    "description": "Success message after clearing history"
+  },
+
+  "noCompletedGames": "No completed games",
+  "@noCompletedGames": {
+    "description": "Empty state when no games in history"
+  },
+
+  "noCompletedGamesSubtitle": "Finish a game to see it here",
+  "@noCompletedGamesSubtitle": {
+    "description": "Subtitle for empty history"
+  },
+
+  "playersCountLabel": "{count} players",
+  "@playersCountLabel": {
+    "description": "Number of players in a game",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+
+  "targetScoreLabel": "Target: {score}",
+  "@targetScoreLabel": {
+    "description": "Target score display in history card",
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+
+  "winnerLabel": "Winner: {name}",
+  "@winnerLabel": {
+    "description": "Winner display in history card",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "loserLabelShort": "Loser: {name}",
+  "@loserLabelShort": {
+    "description": "Loser display in history card",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+
+  "buttonAdded": "Button added",
+  "@buttonAdded": {
+    "description": "Success message after adding quick button"
+  },
+
+  "deleteButtonConfirm": "Delete this quick button?",
+  "@deleteButtonConfirm": {
+    "description": "Confirmation message for deleting a button"
+  },
+
+  "buttonDeleted": "Button deleted",
+  "@buttonDeleted": {
+    "description": "Success message after deleting button"
+  },
+
+  "reset": "Reset",
+  "@reset": {
+    "description": "Button/dialog title for reset action"
+  },
+
+  "resetMessage": "All settings will return to defaults.",
+  "@resetMessage": {
+    "description": "Message for reset confirmation"
+  },
+
+  "settingsReset": "Settings reset",
+  "@settingsReset": {
+    "description": "Success message after resetting settings"
+  },
+
+  "appearance": "Appearance",
+  "@appearance": {
+    "description": "Section title for appearance settings"
+  },
+
+  "appearanceSubtitle": "Customize app appearance",
+  "@appearanceSubtitle": {
+    "description": "Subtitle for appearance section"
+  },
+
+  "gameSection": "Game",
+  "@gameSection": {
+    "description": "Section title for game settings"
+  },
+
+  "gameSectionSubtitle": "Default game configuration",
+  "@gameSectionSubtitle": {
+    "description": "Subtitle for game settings section"
+  },
+
+  "defaultDealerMode": "Default dealer mode",
+  "@defaultDealerMode": {
+    "description": "Label for dealer mode setting"
+  },
+
+  "quickButtons": "Quick Buttons",
+  "@quickButtons": {
+    "description": "Section title for quick buttons"
+  },
+
+  "quickButtonsSubtitle": "Customize quick score buttons",
+  "@quickButtonsSubtitle": {
+    "description": "Subtitle for quick buttons section"
+  },
+
+  "noButtons": "No buttons configured",
+  "@noButtons": {
+    "description": "Empty state for quick buttons"
+  },
+
+  "noButtonsSubtitle": "Add your quick score buttons",
+  "@noButtonsSubtitle": {
+    "description": "Subtitle for empty buttons state"
+  },
+
+  "buttonValue": "Value: {value}",
+  "@buttonValue": {
+    "description": "Quick button value display",
+    "placeholders": {
+      "value": {
+        "type": "int"
+      }
+    }
+  },
+
+  "sound": "Sound",
+  "@sound": {
+    "description": "Dropdown label for sound selection"
+  },
+
+  "preview": "Preview",
+  "@preview": {
+    "description": "Tooltip for sound preview button"
+  },
+
+  "noSoundSelected": "No sound selected",
+  "@noSoundSelected": {
+    "description": "Warning when no sound is selected"
+  },
+
+  "addButton": "Add Button",
+  "@addButton": {
+    "description": "Section title and button label for adding a button"
+  },
+
+  "addButtonSubtitle": "Create a quick score button",
+  "@addButtonSubtitle": {
+    "description": "Subtitle for add button section"
+  },
+
+  "buttonLabel": "Button Label",
+  "@buttonLabel": {
+    "description": "TextField label for button label"
+  },
+
+  "buttonLabelHint": "Ex: Kmalt",
+  "@buttonLabelHint": {
+    "description": "Hint for button label input"
+  },
+
+  "buttonValueField": "Button Value",
+  "@buttonValueField": {
+    "description": "TextField label for button value"
+  },
+
+  "buttonValueHint": "Ex: -10 or 50",
+  "@buttonValueHint": {
+    "description": "Hint for button value input"
+  },
+
+  "resetSettings": "Reset Settings",
+  "@resetSettings": {
+    "description": "Button to reset all settings"
+  },
+
+  "rotation": "Rotation",
+  "@rotation": {
+    "description": "Rotation starter mode"
+  },
+
+  "random": "Random",
+  "@random": {
+    "description": "Random starter mode"
+  },
+
+  "manual": "Manual",
+  "@manual": {
+    "description": "Manual starter mode"
+  },
+
+  "light": "Light",
+  "@light": {
+    "description": "Light theme option title"
+  },
+
+  "lightTheme": "Light theme",
+  "@lightTheme": {
+    "description": "Light theme option subtitle"
+  },
+
+  "dark": "Dark",
+  "@dark": {
+    "description": "Dark theme option title"
+  },
+
+  "darkTheme": "Dark theme",
+  "@darkTheme": {
+    "description": "Dark theme option subtitle"
+  },
+
+  "system": "System",
+  "@system": {
+    "description": "System theme option title"
+  },
+
+  "followSystem": "Follow system",
+  "@followSystem": {
+    "description": "System theme option subtitle"
+  },
+
+  "loser": "Loser",
+  "@loser": {
+    "description": "Loser badge label"
+  },
+
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button label"
+  },
+
+  "search": "Search...",
+  "@search": {
+    "description": "Search bar hint text"
+  },
+
+  "confirm": "Confirm",
+  "@confirm": {
+    "description": "Default confirm button label"
+  },
+
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Default cancel button label"
+  },
+
+  "nameEmptyError": "Name cannot be empty",
+  "@nameEmptyError": {
+    "description": "Error when player name is empty"
+  },
+
+  "nameDuplicateError": "Another player already has this name",
+  "@nameDuplicateError": {
+    "description": "Error when player name is duplicate"
+  },
+
+  "labelEmptyError": "Label cannot be empty",
+  "@labelEmptyError": {
+    "description": "Error when button label is empty"
+  },
+
+  "labelDuplicateError": "A button with label \"{label}\" already exists",
+  "@labelDuplicateError": {
+    "description": "Error when button label is duplicate",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+
+  "invalidSoundError": "Invalid sound \"{soundId}\"",
+  "@invalidSoundError": {
+    "description": "Error when sound ID is invalid",
+    "placeholders": {
+      "soundId": {
+        "type": "String"
+      }
+    }
+  },
+
+  "buttonNotFoundError": "Button \"{buttonId}\" not found",
+  "@buttonNotFoundError": {
+    "description": "Error when button is not found",
+    "placeholders": {
+      "buttonId": {
+        "type": "String"
+      }
+    }
+  },
+
+  "imageDecodeError": "Cannot decode this image. Supported formats: JPEG, PNG, WebP, HEIC (Android/iOS).",
+  "@imageDecodeError": {
+    "description": "Error when image cannot be decoded"
+  }
+}
